@@ -1,0 +1,28 @@
+<!-- templates/jobs/job_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }} - Job Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1>{{ job.title }}</h1>
+        <h3 class="text-primary">{{ job.company }}</h3>
+        <p class="text-muted mb-4">
+            <i class="fas fa-map-marker-alt"></i> {{ job.location }} | 
+            <i class="fas fa-dollar-sign"></i> ${{ job.salary|floatformat:0 }}
+        </p>
+        
+        <h4>Job Description</h4>
+        <p>{{ job.description|linebreaks }}</p>
+        
+        <h4>Requirements</h4>
+        <p>{{ job.requirements|linebreaks }}</p>
+        
+        <div class="mt-4">
+            <button class="btn btn-success btn-lg">Apply Now</button>
+            <a href="{% url 'job_list' %}" class="btn btn-secondary">Back to Jobs</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
