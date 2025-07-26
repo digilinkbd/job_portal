@@ -1,0 +1,394 @@
+<!-- templates/accounts/employer_profile_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}Company Profile Setup - Job Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-setup-container {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    .profile-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        margin-bottom: 2rem;
+    }
+    .profile-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #2196F3;
+    }
+    .profile-header i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px 15px;
+        border: 2px solid #e0e0e0;
+        margin-bottom: 0.5rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #2196F3;
+        box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+    }
+    .btn-save {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        color: white;
+    }
+    .btn-skip {
+        background: transparent;
+        border: 2px solid #6c757d;
+        border-radius: 25px;
+        padding: 10px 25px;
+        color: #6c757d;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .btn-skip:hover {
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+    }
+    .section-title {
+        color: #2196F3;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-setup-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <i class="fas fa-building"></i>
+                        <h2>{% if is_setup %}Complete Company Profile{% else %}Update Company Profile{% endif %}</h2>
+                        <p class="text-muted">
+                            {% if is_setup %}
+                                Set up your company profile to attract the best talent
+                            {% else %}
+                                Update your company information
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Account Information Section -->
+                        <div class="section">
+                            <h4 class="section-title">
+                                <i class="fas fa-user me-2"></i>Account Information
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Username</label>
+                                        {{ user_form.username }}
+                                        {% if user_form.username.errors %}
+                                            <div class="text-danger small">{{ user_form.username.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        {{ user_form.email }}
+                                        {% if user_form.email.errors %}
+                                            <div class="text-danger small">{{ user_form.email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Company Information Section -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-building me-2"></i>Company Information
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Name</label>
+                                        {{ profile_form.company_name }}
+                                        {% if profile_form.company_name.errors %}
+                                            <div class="text-danger small">{{ profile_form.company_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Logo</label>
+                                        {{ profile_form.company_logo }}
+                                        {% if profile_form.company_logo.errors %}
+                                            <div class="text-danger small">{{ profile_form.company_logo.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Company Description</label>
+                                {{ profile_form.description }}
+                                {% if profile_form.description.errors %}
+                                    <div class="text-danger small">{{ profile_form.description.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Industry</label>
+                                        {{ profile_form.industry }}
+                                        {% if profile_form.industry.errors %}
+                                            <div class="text-danger small">{{ profile_form.industry.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Size</label>
+                                        {{ profile_form.company_size }}
+                                        {% if profile_form.company_size.errors %}
+                                            <div class="text-danger small">{{ profile_form.company_size.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Founded Year</label>
+                                        {{ profile_form.founded_year }}
+                                        {% if profile_form.founded_year.errors %}
+                                            <div class="text-danger small">{{ profile_form.founded_year.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information Section -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-address-book me-2"></i>Contact Information
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Contact Person</label>
+                                        {{ profile_form.contact_person }}
+                                        {% if profile_form.contact_person.errors %}
+                                            <div class="text-danger small">{{ profile_form.contact_person.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Contact Email</label>
+                                        {{ profile_form.contact_email }}
+                                        {% if profile_form.contact_email.errors %}
+                                            <div class="text-danger small">{{ profile_form.contact_email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone</label>
+                                        {{ profile_form.phone }}
+                                        {% if profile_form.phone.errors %}
+                                            <div class="text-danger small">{{ profile_form.phone.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Website</label>
+                                        {{ profile_form.website }}
+                                        {% if profile_form.website.errors %}
+                                            <div class="text-danger small">{{ profile_form.website.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Section -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-map-marker-alt me-2"></i>Location
+                            </h4>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Headquarters</label>
+                                {{ profile_form.headquarters }}
+                                {% if profile_form.headquarters.errors %}
+                                    <div class="text-danger small">{{ profile_form.headquarters.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                {{ profile_form.address }}
+                                {% if profile_form.address.errors %}
+                                    <div class="text-danger small">{{ profile_form.address.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">City</label>
+                                        {{ profile_form.city }}
+                                        {% if profile_form.city.errors %}
+                                            <div class="text-danger small">{{ profile_form.city.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">State</label>
+                                        {{ profile_form.state }}
+                                        {% if profile_form.state.errors %}
+                                            <div class="text-danger small">{{ profile_form.state.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Country</label>
+                                        {{ profile_form.country }}
+                                        {% if profile_form.country.errors %}
+                                            <div class="text-danger small">{{ profile_form.country.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Company Culture Section -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-heart me-2"></i>Company Culture & Benefits
+                            </h4>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Mission Statement</label>
+                                {{ profile_form.mission_statement }}
+                                {% if profile_form.mission_statement.errors %}
+                                    <div class="text-danger small">{{ profile_form.mission_statement.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Work Culture</label>
+                                {{ profile_form.work_culture }}
+                                {% if profile_form.work_culture.errors %}
+                                    <div class="text-danger small">{{ profile_form.work_culture.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Benefits Offered</label>
+                                {{ profile_form.benefits_offered }}
+                                {% if profile_form.benefits_offered.errors %}
+                                    <div class="text-danger small">{{ profile_form.benefits_offered.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Social Media Section -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-share-alt me-2"></i>Social Media <small class="text-muted">(Optional)</small>
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">LinkedIn URL</label>
+                                        {{ profile_form.linkedin_url }}
+                                        {% if profile_form.linkedin_url.errors %}
+                                            <div class="text-danger small">{{ profile_form.linkedin_url.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Twitter URL</label>
+                                        {{ profile_form.twitter_url }}
+                                        {% if profile_form.twitter_url.errors %}
+                                            <div class="text-danger small">{{ profile_form.twitter_url.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Facebook URL</label>
+                                        {{ profile_form.facebook_url }}
+                                        {% if profile_form.facebook_url.errors %}
+                                            <div class="text-danger small">{{ profile_form.facebook_url.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-save me-3">
+                                <i class="fas fa-save me-2"></i>
+                                {% if is_setup %}Complete Setup{% else %}Update Profile{% endif %}
+                            </button>
+                            
+                            {% if is_setup %}
+                                <a href="{% url 'jobs:employer_dashboard' %}" class="btn btn-skip">
+                                    <i class="fas fa-arrow-right me-2"></i>Skip for now
+                                </a>
+                            {% else %}
+                                <a href="{% url 'accounts:employer_profile' %}" class="btn btn-skip">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

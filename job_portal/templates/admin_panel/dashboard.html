@@ -1,0 +1,400 @@
+<!-- templates/admin_panel/dashboard.html -->
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Job Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: transform 0.3s ease;
+        border-left: 4px solid;
+        margin-bottom: 1.5rem;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    .stats-card.users { border-left-color: #4CAF50; }
+    .stats-card.jobs { border-left-color: #2196F3; }
+    .stats-card.applications { border-left-color: #FF9800; }
+    .stats-card.growth { border-left-color: #9C27B0; }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .stat-users { color: #4CAF50; }
+    .stat-jobs { color: #2196F3; }
+    .stat-applications { color: #FF9800; }
+    .stat-growth { color: #9C27B0; }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .activity-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s ease;
+    }
+    .activity-item:hover {
+        background: #f8f9fa;
+    }
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+    }
+    .activity-users { background: #4CAF50; }
+    .activity-jobs { background: #2196F3; }
+    .activity-applications { background: #FF9800; }
+    
+    .quick-actions {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .action-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.25rem;
+        transition: transform 0.2s ease;
+    }
+    .action-btn:hover {
+        transform: translateY(-2px);
+        color: white;
+    }
+    .time-filter {
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+</style>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+                <p class="lead mb-0">Welcome back! Here's what's happening with your job portal.</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="time-filter">
+                    <form method="get" class="d-flex align-items-center">
+                        <label class="form-label me-2 mb-0">Period:</label>
+                        <select name="days" class="form-select" onchange="this.form.submit()">
+                            <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                            <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                            <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+                            <option value="365" {% if days == 365 %}selected{% endif %}>Last year</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Quick Stats -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card users">
+                <div class="stat-number stat-users">{{ total_users }}</div>
+                <div class="text-muted">Total Users</div>
+                <small class="text-success">
+                    <i class="fas fa-arrow-up"></i> +{{ new_users_this_period }} this period
+                </small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card jobs">
+                <div class="stat-number stat-jobs">{{ active_jobs }}</div>
+                <div class="text-muted">Active Jobs</div>
+                <small class="text-primary">
+                    <i class="fas fa-briefcase"></i> {{ total_jobs }} total posted
+                </small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card applications">
+                <div class="stat-number stat-applications">{{ total_applications }}</div>
+                <div class="text-muted">Total Applications</div>
+                <small class="text-warning">
+                    <i class="fas fa-paper-plane"></i> +{{ applications_this_period }} this period
+                </small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card growth">
+                <div class="stat-number stat-growth">{{ job_seekers }}</div>
+                <div class="text-muted">Job Seekers</div>
+                <small class="text-info">
+                    <i class="fas fa-users"></i> {{ employers }} employers
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Registration Chart -->
+        <div class="col-xl-8">
+            <div class="chart-container">
+                <h4><i class="fas fa-chart-line text-primary"></i> User Registrations</h4>
+                <canvas id="registrationChart" height="100"></canvas>
+            </div>
+        </div>
+        
+        <!-- Application Status Pie Chart -->
+        <div class="col-xl-4">
+            <div class="chart-container">
+                <h4><i class="fas fa-chart-pie text-success"></i> Application Status</h4>
+                <canvas id="statusChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Activity -->
+        <div class="col-xl-6">
+            <div class="activity-card">
+                <h4><i class="fas fa-clock text-info"></i> Recent Activity</h4>
+                
+                <h6 class="mt-3 mb-2">New Users</h6>
+                {% for user in recent_users %}
+                <div class="activity-item">
+                    <div class="activity-icon activity-users">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>{{ user.username }}</strong> joined as {{ user.get_user_type_display }}
+                        <br><small class="text-muted">{{ user.date_joined|timesince }} ago</small>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <h6 class="mt-3 mb-2">Recent Jobs</h6>
+                {% for job in recent_jobs %}
+                <div class="activity-item">
+                    <div class="activity-icon activity-jobs">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>{{ job.title }}</strong> at {{ job.company.company_name }}
+                        <br><small class="text-muted">{{ job.created_at|timesince }} ago</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="col-xl-6">
+            <div class="activity-card">
+                <h4><i class="fas fa-paper-plane text-warning"></i> Recent Applications</h4>
+                {% for application in recent_applications %}
+                <div class="activity-item">
+                    <div class="activity-icon activity-applications">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>{{ application.applicant.get_full_name }}</strong>
+                        <br>Applied for {{ application.job.title }}
+                        <br><small class="text-muted">{{ application.applied_date|timesince }} ago</small>
+                    </div>
+                    <span class="badge bg-{{ application.status|yesno:'success,warning,info' }}">
+                        {{ application.get_status_display }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top Categories -->
+        <div class="col-xl-6">
+            <div class="activity-card">
+                <h4><i class="fas fa-tags text-secondary"></i> Top Job Categories</h4>
+                {% for category in top_categories %}
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <span><strong>{{ category.name }}</strong></span>
+                    <span class="badge bg-primary">{{ category.job_count }} jobs</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-xl-6">
+            <div class="quick-actions">
+                <h4><i class="fas fa-bolt text-warning"></i> Quick Actions</h4>
+                <div class="d-grid gap-2 d-md-flex flex-wrap">
+                    <a href="{% url 'admin_panel:user_management' %}" class="action-btn">
+                        <i class="fas fa-users"></i> Manage Users
+                    </a>
+                    <a href="{% url 'admin_panel:job_management' %}" class="action-btn">
+                        <i class="fas fa-briefcase"></i> Manage Jobs
+                    </a>
+                    <a href="{% url 'admin_panel:analytics' %}" class="action-btn">
+                        <i class="fas fa-chart-bar"></i> View Analytics
+                    </a>
+                    <a href="{% url 'admin_panel:export_users' %}" class="action-btn">
+                        <i class="fas fa-download"></i> Export Users
+                    </a>
+                    <a href="{% url 'admin_panel:export_jobs' %}" class="action-btn">
+                        <i class="fas fa-download"></i> Export Jobs
+                    </a>
+                    <a href="{% url 'admin_panel:system_settings' %}" class="action-btn">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// User Registration Chart
+const registrationCtx = document.getElementById('registrationChart').getContext('2d');
+const registrationChart = new Chart(registrationCtx, {
+    type: 'line',
+    data: {
+        labels: {{ daily_registrations|safe }}.map(item => item.date),
+        datasets: [{
+            label: 'Daily Registrations',
+            data: {{ daily_registrations|safe }}.map(item => item.count),
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+});
+
+// Application Status Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusData = {{ application_status_data|safe }};
+const statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: statusData.map(item => item.status.charAt(0).toUpperCase() + item.status.slice(1)),
+        datasets: [{
+            data: statusData.map(item => item.count),
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB', 
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF',
+                '#FF9F40'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true
+                }
+            }
+        }
+    }
+});
+
+// Auto-refresh quick stats every 30 seconds
+setInterval(function() {
+    fetch('{% url "admin_panel:quick_stats_api" %}')
+        .then(response => response.json())
+        .then(data => {
+            // Update real-time stats if needed
+            console.log('Stats updated:', data);
+        })
+        .catch(error => console.error('Error fetching stats:', error));
+}, 30000);
+
+// Add some interactivity to stats cards
+document.querySelectorAll('.stats-card').forEach(card => {
+    card.addEventListener('click', function() {
+        // Add click animation
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            this.style.transform = '';
+        }, 150);
+    });
+});
+</script>
+{% endblock %}

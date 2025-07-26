@@ -1,64 +1,812 @@
+<!-- templates/base.html - Enhanced Base Template with Modern UI -->
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Job Portal{% endblock %}</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <title>{% block title %}Job Portal - Find Your Dream Job{% endblock %}</title>
+        
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add this line after your existing CSS links -->
+    <link rel="stylesheet" href="{% static 'css/minimal-enhancements.css' %}">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Modern Color Palette */
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --dark-gradient: linear-gradient(135deg, #434343 0%, #000000 100%);
+            
+            /* Colors */
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #4facfe;
+            --warning-color: #43e97b;
+            --danger-color: #f5576c;
+            --info-color: #38f9d7;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+            
+            /* Typography */
+            --font-primary: 'Inter', sans-serif;
+            --font-display: 'Poppins', sans-serif;
+            
+            /* Spacing */
+            --border-radius: 15px;
+            --border-radius-sm: 8px;
+            --border-radius-lg: 25px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.25);
+            
+            /* Transitions */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.15s ease;
+            --transition-slow: all 0.6s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            overflow-x: hidden;
+        }
+        
+        /* Enhanced Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--dark-color);
+        }
+        
+        .display-1, .display-2, .display-3, .display-4 {
+            font-family: var(--font-display);
+            font-weight: 800;
+        }
+        
+        /* Modern Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            padding: 1rem 0;
+        }
+        
+        .navbar.scrolled {
+            padding: 0.5rem 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar-brand {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: var(--transition);
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark-color) !important;
+            position: relative;
+            transition: var(--transition);
+            margin: 0 0.5rem;
+            padding: 0.75rem 1rem !important;
+            border-radius: var(--border-radius-sm);
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .nav-link.active {
+            background: var(--primary-gradient);
+            color: white !important;
+        }
+        
+        /* Modern Buttons */
+        .btn {
+            border-radius: var(--border-radius-lg);
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border: none;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: var(--transition);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-gradient);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .btn-success {
+            background: var(--success-gradient);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .btn-warning {
+            background: var(--warning-gradient);
+            box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Modern Cards */
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            overflow: hidden;
+            background: white;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        /* Modern Forms */
+        .form-control, .form-select {
+            border-radius: var(--border-radius-sm);
+            border: 2px solid #e9ecef;
+            padding: 0.875rem 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Hero Section Styles */
+        .hero-section {
+            background: var(--primary-gradient);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,1000 1000,0"/></svg>');
+            background-size: cover;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Animated Background */
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .floating-shapes span {
+            position: absolute;
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            animation: animate 25s linear infinite;
+            border-radius: 50%;
+        }
+        
+        @keyframes animate {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Modern Alerts */
+        .alert {
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1.25rem 1.5rem;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: currentColor;
+        }
+        
+        /* Loading Animations */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(102, 126, 234, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Modern Badges */
+        .badge {
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-lg);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+        }
+        
+        /* Modern Footer */
+        .footer {
+            background: var(--dark-gradient);
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: 5rem;
+        }
+        
+        .footer h5 {
+            color: white;
+            font-family: var(--font-display);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .btn {
+                padding: 0.625rem 1.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .hero-section {
+                min-height: 70vh;
+                text-align: center;
+            }
+            
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Utility Classes */
+        .text-gradient {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .bg-gradient-primary {
+            background: var(--primary-gradient);
+        }
+        
+        .bg-gradient-secondary {
+            background: var(--secondary-gradient);
+        }
+        
+        .shadow-custom {
+            box-shadow: var(--shadow);
+        }
+        
+        .shadow-hover {
+            transition: var(--transition);
+        }
+        
+        .shadow-hover:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-5px);
+        }
+        
+        .border-gradient {
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box, var(--primary-gradient) border-box;
+        }
+        
+        /* Page Transitions */
+        .page-transition {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: var(--transition-slow);
+        }
+        
+        .page-transition.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Modern Search Bar */
+        .search-bar {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .search-bar .form-control {
+            padding-left: 3rem;
+            border-radius: var(--border-radius-lg);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .search-bar .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            z-index: 3;
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'jobs:job_list' %}">Job Portal</a>
+            <a class="navbar-brand" href="{% url 'jobs:job_list' %}">
+                <i class="fas fa-briefcase me-2"></i>JobPortal
+            </a>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto">
-                    {% if user.is_authenticated %}
-                        <span class="navbar-text me-3">Hello, {{ user.first_name|default:user.username }}!</span>
-                        {% if user.user_type == 'employer' %}
-                            <a class="nav-link" href="{% url 'jobs:employer_dashboard' %}">Dashboard</a>
-                            <a class="nav-link" href="{% url 'jobs:create_job' %}">Post Job</a>
-                        {% else %}
-                            <a class="nav-link" href="{% url 'jobs:my_applications' %}">My Applications</a>
-                            <a class="nav-link" href="{% url 'jobs:saved_jobs' %}">Saved Jobs</a>
-                        {% endif %}
-                        <a class="nav-link" href="{% url 'accounts:profile' %}">Profile</a>
-                        <a class="nav-link" href="{% url 'accounts:logout' %}">Logout</a>
-                    {% else %}
-                        <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
-                        <a class="nav-link" href="{% url 'accounts:register' %}">Register</a>
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'job_list' %}active{% endif %}" 
+                           href="{% url 'jobs:job_list' %}">
+                            <i class="fas fa-search me-1"></i>Find Jobs
+                        </a>
+                    </li>
+                    {% if user.is_authenticated and user.user_type == 'employer' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'employer' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'jobs:employer_dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'jobs:create_job' %}">
+                            <i class="fas fa-plus me-1"></i>Post Job
+                        </a>
+                    </li>
                     {% endif %}
-                </div>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" 
+                               id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar me-2">
+                                    {{ user.username|slice:":1"|upper }}
+                                </div>
+                                <span>{{ user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if user.user_type == 'job_seeker' %}
+                                    <li><a class="dropdown-item" href="{% url 'accounts:job_seeker_dashboard' %}">
+                                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'accounts:job_seeker_profile' %}">
+                                        <i class="fas fa-user me-2"></i>Profile
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'jobs:my_applications' %}">
+                                        <i class="fas fa-paper-plane me-2"></i>My Applications
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'jobs:saved_jobs' %}">
+                                        <i class="fas fa-bookmark me-2"></i>Saved Jobs
+                                    </a></li>
+                                {% elif user.user_type == 'employer' %}
+                                    <li><a class="dropdown-item" href="{% url 'accounts:employer_profile' %}">
+                                        <i class="fas fa-building me-2"></i>Company Profile
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'jobs:employer_jobs' %}">
+                                        <i class="fas fa-briefcase me-2"></i>My Jobs
+                                    </a></li>
+                                {% endif %}
+                                {% if user.is_superuser or user.user_type == 'admin' %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'admin_panel:dashboard' %}">
+                                        <i class="fas fa-crown me-2"></i>Admin Panel
+                                    </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:account_settings' %}">
+                                    <i class="fas fa-cog me-2"></i>Settings
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Sign In
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary ms-2" href="{% url 'accounts:register_choice' %}">
+                                <i class="fas fa-user-plus me-1"></i>Join Now
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
-
-    {% if messages %}
-        <div class="container mt-3">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <main>
-        {% block content %}
-        {% endblock %}
+    
+    <!-- Main Content -->
+    <main class="page-transition" id="mainContent">
+        {% if messages %}
+            <div class="container mt-5 pt-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" data-aos="fade-down">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'warning' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
     </main>
-
-    <footer class="bg-light mt-5 py-4">
-        <div class="container text-center">
-            <p class="text-muted mb-0">&copy; 2025 Job Portal. All rights reserved.</p>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5><i class="fas fa-briefcase me-2"></i>JobPortal</h5>
+                    <p class="text-muted">Connecting talented professionals with amazing opportunities. Build your career with us.</p>
+                    <div class="social-links">
+                        <a href="#" class="me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>For Job Seekers</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'jobs:job_list' %}">Browse Jobs</a></li>
+                        <li><a href="{% url 'accounts:register_choice' %}">Create Profile</a></li>
+                        <li><a href="#">Career Advice</a></li>
+                        <li><a href="#">Resume Builder</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>For Employers</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'jobs:create_job' %}">Post a Job</a></li>
+                        <li><a href="{% url 'accounts:register_choice' %}">Employer Signup</a></li>
+                        <li><a href="#">Talent Search</a></li>
+                        <li><a href="#">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Company</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Support</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Contact Support</a></li>
+                        <li><a href="#">Status</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">&copy; 2025 JobPortal. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="text-muted mb-0">Made with <i class="fas fa-heart text-danger"></i> for job seekers</p>
+                </div>
+            </div>
         </div>
     </footer>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Floating Action Button (for mobile) -->
+    <div class="fab-container d-md-none" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button class="btn btn-primary rounded-circle" style="width: 60px; height: 60px;" data-bs-toggle="modal" data-bs-target="#mobileMenuModal">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    
+    <script src="{% static 'js/minimal-interactions.js' %}"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize AOS (Animate On Scroll)
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+        
+        // Page transition effect
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('mainContent').classList.add('loaded');
+            }, 100);
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('mainNav');
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Add floating shapes animation
+        function createFloatingShapes() {
+            const shapes = document.querySelector('.floating-shapes');
+            if (shapes) {
+                for (let i = 0; i < 10; i++) {
+                    const span = document.createElement('span');
+                    span.style.left = Math.random() * 100 + '%';
+                    span.style.animationDelay = Math.random() * 20 + 's';
+                    span.style.animationDuration = (Math.random() * 10 + 20) + 's';
+                    shapes.appendChild(span);
+                }
+            }
+        }
+        
+        // Loading overlay functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+        
+        // Auto-hide loading after 3 seconds
+        setTimeout(hideLoading, 3000);
+        
+        // Add loading to form submissions
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', showLoading);
+        });
+        
+        // Add loading to navigation links
+        document.querySelectorAll('a:not([href^="#"]):not([href^="mailto"]):not([href^="tel"]):not([data-bs-toggle])').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.hostname === window.location.hostname) {
+                    showLoading();
+                }
+            });
+        });
+        
+        // CSRF Token helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Initialize floating shapes on hero sections
+        createFloatingShapes();
+    </script>
+    
+  
+    
+    <style>
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+    </style>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

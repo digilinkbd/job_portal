@@ -1,0 +1,755 @@
+<!-- templates/jobs/home.html - Modern Homepage -->
+{% extends 'base.html' %}
+
+{% block title %}Find Your Dream Job - JobPortal{% endblock %}
+
+{% block extra_css %}
+
+
+<style>
+    .hero-section {
+        background: var(--primary-gradient);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        color: white;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.08)" points="0,1000 1000,1000 1000,300 0,800"/></svg>');
+        background-size: cover;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 3;
+    }
+    
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin-bottom: 3rem;
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+    
+    .hero-search-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        padding: 2rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    }
+    
+    .search-form .form-control {
+        border: none;
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .search-btn {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        transition: var(--transition);
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
+    }
+    
+    .stats-section {
+        padding: 6rem 0;
+        background: white;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .stat-number {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-label {
+        font-size: 1.2rem;
+        color: var(--dark-color);
+        font-weight: 600;
+    }
+    
+    .features-section {
+        padding: 8rem 0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        transition: var(--transition);
+        height: 100%;
+        border: none;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 2rem;
+        background: var(--primary-gradient);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--dark-color);
+    }
+    
+    .feature-description {
+        color: #6c757d;
+        line-height: 1.6;
+        font-size: 1.1rem;
+    }
+    
+    .categories-section {
+        padding: 8rem 0;
+        background: white;
+    }
+    
+    .category-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        transition: var(--transition);
+        border: 2px solid transparent;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary-color);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+        color: inherit;
+    }
+    
+    .category-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .category-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--dark-color);
+    }
+    
+    .category-count {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .cta-section {
+        background: var(--dark-gradient);
+        color: white;
+        padding: 8rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle fill="rgba(255,255,255,0.03)" cx="100" cy="100" r="50"/><circle fill="rgba(255,255,255,0.05)" cx="900" cy="200" r="80"/><circle fill="rgba(255,255,255,0.04)" cx="200" cy="800" r="60"/></svg>');
+    }
+    
+    .cta-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .cta-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+    }
+    
+    .cta-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 3rem;
+        opacity: 0.9;
+    }
+    
+    .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .floating-shapes span {
+        position: absolute;
+        display: block;
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        animation: animate 25s linear infinite;
+        border-radius: 50%;
+    }
+    
+    @keyframes animate {
+        0% {
+            transform: translateY(100vh) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+    
+    .testimonial-section {
+        padding: 8rem 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .testimonial-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .testimonial-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: white;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .testimonial-text {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        font-style: italic;
+    }
+    
+    .testimonial-author {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .testimonial-role {
+        opacity: 0.8;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .hero-search-container {
+            padding: 1.5rem;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+        }
+        
+        .cta-title {
+            font-size: 2rem;
+        }
+        
+        .feature-card {
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="floating-shapes">
+        <span style="left: 10%; animation-delay: 0s;"></span>
+        <span style="left: 20%; animation-delay: 2s;"></span>
+        <span style="left: 25%; animation-delay: 4s;"></span>
+        <span style="left: 40%; animation-delay: 0s;"></span>
+        <span style="left: 70%; animation-delay: 1s;"></span>
+        <span style="left: 80%; animation-delay: 3s;"></span>
+        <span style="left: 90%; animation-delay: 5s;"></span>
+    </div>
+    
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h1 class="hero-title">Find Your Dream Job Today</h1>
+                <p class="hero-subtitle">
+                    Discover thousands of opportunities from top companies. 
+                    Your perfect career is just one search away.
+                </p>
+                
+                <div class="hero-search-container">
+                    <form method="get" action="{% url 'jobs:job_list' %}" class="search-form">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <input type="text" name="search" class="form-control" 
+                                       placeholder="Job title or keywords">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="location" class="form-control" 
+                                       placeholder="Location">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn search-btn w-100">
+                                    <i class="fas fa-search me-2"></i>Search Jobs
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'accounts:register_choice' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Get Started
+                    </a>
+                    <a href="#features" class="btn btn-link text-white fs-5">
+                        Learn More <i class="fas fa-arrow-down ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="text-center p-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px;">
+                <i class="fas fa-search fa-5x text-white mb-3"></i>
+                <h4 class="text-white">Job Search Illustration</h4> 
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row" data-aos="fade-up">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-label">Active Jobs</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <div class="stat-number">50,000+</div>
+                    <div class="stat-label">Job Seekers</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <div class="stat-number">5,000+</div>
+                    <div class="stat-label">Companies</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="features">
+    <div class="container">
+        <div class="row mb-5" data-aos="fade-up">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 fw-bold text-gradient mb-4">Why Choose JobPortal?</h2>
+                <p class="lead text-muted">
+                    We provide the tools and opportunities you need to advance your career 
+                    and find the perfect job match.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Job Matching</h3>
+                    <p class="feature-description">
+                        Our AI-powered algorithm matches you with jobs that fit your skills, 
+                        experience, and career goals perfectly.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Top Companies</h3>
+                    <p class="feature-description">
+                        Connect with leading companies and startups across all industries. 
+                        From Fortune 500 to innovative startups.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="feature-title">Career Growth</h3>
+                    <p class="feature-description">
+                        Access resources, mentorship, and opportunities that help you 
+                        advance your career and reach new heights.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Secure & Private</h3>
+                    <p class="feature-description">
+                        Your personal information and job search activities are kept 
+                        completely secure and confidential.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="feature-title">Real-time Updates</h3>
+                    <p class="feature-description">
+                        Get instant notifications about new job openings, application 
+                        status updates, and interview invitations.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile Ready</h3>
+                    <p class="feature-description">
+                        Search and apply for jobs anywhere, anytime with our mobile-optimized 
+                        platform and upcoming mobile app.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Categories -->
+<section class="categories-section">
+    <div class="container">
+        <div class="row mb-5" data-aos="fade-up">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 fw-bold text-gradient mb-4">Popular Job Categories</h2>
+                <p class="lead text-muted">
+                    Explore opportunities across various industries and find your perfect match.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <a href="{% url 'jobs:job_list' %}?category=technology" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h4 class="category-title">Technology</h4>
+                    <p class="category-count">2,500+ jobs available</p>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <a href="{% url 'jobs:job_list' %}?category=healthcare" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h4 class="category-title">Healthcare</h4>
+                    <p class="category-count">1,800+ jobs available</p>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <a href="{% url 'jobs:job_list' %}?category=finance" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="category-title">Finance</h4>
+                    <p class="category-count">1,200+ jobs available</p>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <a href="{% url 'jobs:job_list' %}?category=education" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4 class="category-title">Education</h4>
+                    <p class="category-count">900+ jobs available</p>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                <a href="{% url 'jobs:job_list' %}?category=marketing" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h4 class="category-title">Marketing</h4>
+                    <p class="category-count">750+ jobs available</p>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="600">
+                <a href="{% url 'jobs:job_list' %}?category=design" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h4 class="category-title">Design</h4>
+                    <p class="category-count">650+ jobs available</p>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="700">
+                <a href="{% url 'jobs:job_list' %}?category=sales" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h4 class="category-title">Sales</h4>
+                    <p class="category-count">1,100+ jobs available</p>
+                </a>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="800">
+                <a href="{% url 'jobs:job_list' %}" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                    <h4 class="category-title">View All</h4>
+                    <p class="category-count">Browse all categories</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonial-section">
+    <div class="container">
+        <div class="row mb-5" data-aos="fade-up">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 fw-bold mb-4">What Our Users Say</h2>
+                <p class="lead opacity-75">
+                    Join thousands of professionals who found their dream jobs through JobPortal.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">SA</div>
+                    <p class="testimonial-text">
+                        "JobPortal helped me land my dream job at a Fortune 500 company. 
+                        The platform is intuitive and the job matches were perfect!"
+                    </p>
+                    <div class="testimonial-author">Sarah Anderson</div>
+                    <div class="testimonial-role">Software Engineer at TechCorp</div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">MJ</div>
+                    <p class="testimonial-text">
+                        "As an employer, JobPortal has been invaluable for finding quality candidates. 
+                        The talent pool is exceptional and the hiring process is streamlined."
+                    </p>
+                    <div class="testimonial-author">Michael Johnson</div>
+                    <div class="testimonial-role">HR Director at InnovateCo</div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">LB</div>
+                    <p class="testimonial-text">
+                        "The career resources and job recommendations on JobPortal are top-notch. 
+                        It's more than just a job board - it's a career development platform."
+                    </p>
+                    <div class="testimonial-author">Lisa Brown</div>
+                    <div class="testimonial-role">Marketing Manager at BrandCo</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="container cta-content">
+        <div class="row" data-aos="fade-up">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="cta-title">Ready to Find Your Dream Job?</h2>
+                <p class="cta-subtitle">
+                    Join thousands of professionals who have already found their perfect career match.
+                </p>
+                <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                    <a href="{% url 'accounts:register_choice' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Sign Up Now
+                    </a>
+                    <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-search me-2"></i>Browse Jobs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enhanced animations for stats counting
+    function animateValue(element, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const current = Math.floor(progress * (end - start) + start);
+            element.innerHTML = current.toLocaleString() + '+';
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+    
+    // Trigger stats animation when in view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statNumbers = document.querySelectorAll('.stat-number');
+                const values = [10000, 50000, 5000, 98];
+                
+                statNumbers.forEach((stat, index) => {
+                    animateValue(stat, 0, values[index], 2000);
+                });
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) {
+        observer.observe(statsSection);
+    }
+    
+    // Parallax effect for hero section
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelector('.hero-section');
+        const speed = scrolled * 0.5;
+        
+        if (parallax) {
+            parallax.style.transform = `translateY(${speed}px)`;
+        }
+    });
+</script>
+{% endblock %}

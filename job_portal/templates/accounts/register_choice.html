@@ -1,0 +1,108 @@
+<!-- templates/accounts/register_choice.html -->
+{% extends 'base.html' %}
+
+{% block title %}Choose Registration Type - Job Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .registration-choice {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+    .choice-card {
+        background: white;
+        border-radius: 15px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .choice-card:hover {
+        transform: translateY(-10px);
+    }
+    .choice-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+    }
+    .job-seeker-card .choice-icon {
+        color: #4CAF50;
+    }
+    .employer-card .choice-icon {
+        color: #2196F3;
+    }
+    .choice-btn {
+        border-radius: 25px;
+        padding: 12px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registration-choice">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center text-white mb-5">
+                <h1 class="display-4 fw-bold">Join Our Job Portal</h1>
+                <p class="lead">Choose your account type to get started</p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-5 mb-4">
+                <div class="choice-card job-seeker-card">
+                    <div class="choice-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3>I'm a Job Seeker</h3>
+                    <p class="text-muted">Looking for your dream job? Create a profile, upload your resume, and start applying to amazing opportunities.</p>
+                    <ul class="list-unstyled text-start mt-3">
+                        <li><i class="fas fa-check text-success me-2"></i> Build professional profile</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Apply to thousands of jobs</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Get job recommendations</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Track applications</li>
+                    </ul>
+                    <a href="{% url 'accounts:job_seeker_register' %}" class="btn btn-success choice-btn">
+                        Get Started as Job Seeker
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-5 mb-4">
+                <div class="choice-card employer-card">
+                    <div class="choice-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>I'm an Employer</h3>
+                    <p class="text-muted">Find the perfect candidates for your company. Post jobs, manage applications, and build your team.</p>
+                    <ul class="list-unstyled text-start mt-3">
+                        <li><i class="fas fa-check text-primary me-2"></i> Post unlimited jobs</li>
+                        <li><i class="fas fa-check text-primary me-2"></i> Access candidate database</li>
+                        <li><i class="fas fa-check text-primary me-2"></i> Manage applications</li>
+                        <li><i class="fas fa-check text-primary me-2"></i> Company branding</li>
+                    </ul>
+                    <a href="{% url 'accounts:employer_register' %}" class="btn btn-primary choice-btn">
+                        Get Started as Employer
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center mt-4">
+            <div class="col-12 text-center text-white">
+                <p>Already have an account? <a href="{% url 'accounts:login' %}" class="text-white fw-bold">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

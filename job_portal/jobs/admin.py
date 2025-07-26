@@ -127,3 +127,16 @@ class SavedJobAdmin(admin.ModelAdmin):
     def company_name(self, obj):
         return obj.job.company.company_name
     company_name.short_description = 'Company'
+
+
+class MathFilterAdmin(admin.ModelAdmin):
+    list_display = ['filter_name', 'description']
+    search_fields = ['filter_name', 'description']
+    
+    def filter_name(self, obj):
+        return obj.name
+    filter_name.short_description = 'Filter Name'
+    
+    def description(self, obj):
+        return obj.description
+    description.short_description = 'Description'

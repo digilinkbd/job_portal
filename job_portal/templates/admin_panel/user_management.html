@@ -1,0 +1,469 @@
+<!-- templates/admin_panel/user_management.html -->
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}User Management - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .users-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .table th {
+        background: #f8f9fa;
+        border: none;
+        font-weight: 600;
+        color: #495057;
+        padding: 1rem;
+    }
+    .table td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    .table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s ease;
+    }
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .status-active {
+        background: #d4edda;
+        color: #155724;
+    }
+    .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    .user-type-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+    .type-job_seeker {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+    .type-employer {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+    .type-admin {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+    .action-btn {
+        padding: 0.25rem 0.75rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 0.125rem;
+    }
+    .btn-view {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+    .btn-view:hover {
+        background: #bbdefb;
+    }
+    .btn-toggle {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+    .btn-toggle:hover {
+        background: #ffe0b2;
+    }
+    .stats-row {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .stat-users { color: #4CAF50; }
+    .stat-employers { color: #2196F3; }
+    .stat-admins { color: #9C27B0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2><i class="fas fa-users text-primary"></i> User Management</h2>
+                <p class="text-muted mb-0">Manage all users, their profiles, and account status</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group" role="group">
+                    <a href="{% url 'admin_panel:export_users' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-download"></i> Export CSV
+                    </a>
+                    <button class="btn btn-primary" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Statistics -->
+    <div class="stats-row">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <div class="stat-number stat-users">{{ page_obj.paginator.count }}</div>
+                    <div class="text-muted">Total Users</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <div class="stat-number stat-employers">
+                        {% with employer_count=page_obj.object_list|length %}
+                        {{ employer_count }}
+                        {% endwith %}
+                    </div>
+                    <div class="text-muted">Showing Results</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <div class="stat-number stat-admins">
+                        {{ page_obj.paginator.num_pages }}
+                    </div>
+                    <div class="text-muted">Total Pages</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="get" class="row align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">User Type</label>
+                <select name="user_type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for value, label in user_types %}
+                        <option value="{{ value }}" {% if value == user_type %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" value="{{ search }}" class="form-control" 
+                       placeholder="Username, email, name...">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="users-table">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Type</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in page_obj %}
+                    <tr id="user-{{ user.id }}">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar">
+                                    {{ user.username|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <strong>{{ user.username }}</strong>
+                                    {% if user.first_name or user.last_name %}
+                                    <br><small class="text-muted">{{ user.get_full_name }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="user-type-badge type-{{ user.user_type }}">
+                                {{ user.get_user_type_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="mailto:{{ user.email }}" class="text-decoration-none">
+                                {{ user.email }}
+                            </a>
+                            {% if user.phone_number %}
+                            <br><small class="text-muted">{{ user.phone_number }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status-badge status-{% if user.is_active %}active{% else %}inactive{% endif %}">
+                                {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                            {% if user.is_superuser %}
+                            <br><span class="badge bg-danger">Superuser</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ user.date_joined|date:"M d, Y" }}
+                            <br><small class="text-muted">{{ user.date_joined|timesince }} ago</small>
+                        </td>
+                        <td>
+                            {% if user.last_login %}
+                                {{ user.last_login|date:"M d, Y" }}
+                                <br><small class="text-muted">{{ user.last_login|timesince }} ago</small>
+                            {% else %}
+                                <span class="text-muted">Never</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap">
+                                <a href="{% url 'admin_panel:user_detail' user.pk %}" class="action-btn btn-view">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                {% if not user.is_superuser %}
+                                <button class="action-btn btn-toggle" 
+                                        onclick="toggleUserStatus({{ user.id }}, {{ user.is_active|yesno:'false,true' }})">
+                                    <i class="fas fa-{% if user.is_active %}pause{% else %}play{% endif %}"></i>
+                                    {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="p-3 border-top">
+            <nav aria-label="User pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if user_type %}&user_type={{ user_type }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if user_type %}&user_type={{ user_type }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if user_type %}&user_type={{ user_type }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h4>No Users Found</h4>
+            <p class="text-muted">No users match your current filters.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Toggle Status Modal -->
+<div class="modal fade" id="toggleStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="toggleStatusMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmToggleStatus">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let userToToggle = null;
+let newStatus = null;
+
+function toggleUserStatus(userId, activate) {
+    userToToggle = userId;
+    newStatus = activate;
+    
+    const action = activate ? 'activate' : 'deactivate';
+    const message = `Are you sure you want to ${action} this user? This will ${activate ? 'allow' : 'prevent'} them from logging in.`;
+    
+    document.getElementById('toggleStatusMessage').textContent = message;
+    
+    const modal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
+    modal.show();
+}
+
+document.getElementById('confirmToggleStatus').addEventListener('click', function() {
+    if (userToToggle && newStatus !== null) {
+        fetch(`/admin/users/${userToToggle}/toggle-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the UI
+                const row = document.getElementById(`user-${userToToggle}`);
+                const statusBadge = row.querySelector('.status-badge');
+                const toggleBtn = row.querySelector('.btn-toggle');
+                
+                if (data.is_active) {
+                    statusBadge.className = 'status-badge status-active';
+                    statusBadge.textContent = 'Active';
+                    toggleBtn.innerHTML = '<i class="fas fa-pause"></i> Deactivate';
+                } else {
+                    statusBadge.className = 'status-badge status-inactive';
+                    statusBadge.textContent = 'Inactive';
+                    toggleBtn.innerHTML = '<i class="fas fa-play"></i> Activate';
+                }
+                
+                // Update the onclick handler
+                toggleBtn.setAttribute('onclick', `toggleUserStatus(${userToToggle}, ${!data.is_active})`);
+                
+                showAlert('success', data.message);
+            } else {
+                showAlert('error', 'Failed to update user status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('error', 'An error occurred');
+        });
+    }
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('toggleStatusModal'));
+    modal.hide();
+});
+
+function refreshData() {
+    location.reload();
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check' : 'exclamation-triangle'}"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Auto-refresh every 30 seconds
+setInterval(function() {
+    // You can implement auto-refresh logic here if needed
+}, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,399 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}System Settings - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    .settings-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .system-stats {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+    .setting-group {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .setting-group h5 {
+        color: #495057;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Settings Header -->
+<div class="settings-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-cog"></i> System Settings</h1>
+                <p class="lead mb-0">Configure your job portal settings and preferences</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-outline-light" onclick="backupSystem()">
+                    <i class="fas fa-download"></i> Backup System
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- System Statistics -->
+        <div class="col-xl-4">
+            <div class="system-stats">
+                <h4><i class="fas fa-server text-primary"></i> System Overview</h4>
+                
+                {% for key, value in system_stats.items %}
+                <div class="stat-item">
+                    <span class="fw-bold">{{ key|title|replace:"_":" " }}:</span>
+                    <span class="text-primary">{{ value }}</span>
+                </div>
+                {% endfor %}
+                
+                <div class="stat-item">
+                    <span class="fw-bold">Server Status:</span>
+                    <span class="badge bg-success">Online</span>
+                </div>
+                
+                <div class="stat-item">
+                    <span class="fw-bold">Last Update:</span>
+                    <span class="text-muted">{{ "now"|date:"M d, Y H:i" }}</span>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="settings-card">
+                <h4><i class="fas fa-bolt text-warning"></i> Quick Actions</h4>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="clearCache()">
+                        <i class="fas fa-trash-alt"></i> Clear Cache
+                    </button>
+                    <button class="btn btn-outline-success" onclick="optimizeDatabase()">
+                        <i class="fas fa-database"></i> Optimize Database
+                    </button>
+                    <button class="btn btn-outline-info" onclick="generateReport()">
+                        <i class="fas fa-file-alt"></i> Generate Report
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="maintenanceMode()">
+                        <i class="fas fa-tools"></i> Maintenance Mode
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Form -->
+        <div class="col-xl-8">
+            <form method="post" class="settings-card">
+                {% csrf_token %}
+                
+                <!-- General Settings -->
+                <div class="setting-group">
+                    <h5><i class="fas fa-globe text-primary"></i> General Settings</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Site Name</label>
+                                <input type="text" class="form-control" name="site_name" 
+                                       value="Job Portal" placeholder="Your site name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Site Description</label>
+                                <input type="text" class="form-control" name="site_description" 
+                                       value="Find your dream job" placeholder="Site description">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Admin Email</label>
+                                <input type="email" class="form-control" name="admin_email" 
+                                       value="{{ user.email }}" placeholder="admin@example.com">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Contact Phone</label>
+                                <input type="text" class="form-control" name="contact_phone" 
+                                       placeholder="+1 (555) 123-4567">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Settings -->
+                <div class="setting-group">
+                    <h5><i class="fas fa-envelope text-success"></i> Email Settings</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">SMTP Host</label>
+                                <input type="text" class="form-control" name="smtp_host" 
+                                       placeholder="smtp.gmail.com">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">SMTP Port</label>
+                                <input type="number" class="form-control" name="smtp_port" 
+                                       value="587" placeholder="587">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email Username</label>
+                                <input type="text" class="form-control" name="email_username" 
+                                       placeholder="your-email@gmail.com">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email Password</label>
+                                <input type="password" class="form-control" name="email_password" 
+                                       placeholder="Your email password">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="email_notifications" 
+                               id="emailNotifications" checked>
+                        <label class="form-check-label" for="emailNotifications">
+                            Enable Email Notifications
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Job Posting Settings -->
+                <div class="setting-group">
+                    <h5><i class="fas fa-briefcase text-warning"></i> Job Posting Settings</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Max Job Duration (Days)</label>
+                                <input type="number" class="form-control" name="max_job_duration" 
+                                       value="30" min="1" max="90">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Max Applications per Job</label>
+                                <input type="number" class="form-control" name="max_applications" 
+                                       value="100" min="1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="auto_approve_jobs" 
+                               id="autoApproveJobs">
+                        <label class="form-check-label" for="autoApproveJobs">
+                            Auto-approve job postings
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="allow_remote_jobs" 
+                               id="allowRemoteJobs" checked>
+                        <label class="form-check-label" for="allowRemoteJobs">
+                            Allow remote job postings
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="setting-group">
+                    <h5><i class="fas fa-shield-alt text-danger"></i> Security Settings</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Session Timeout (Minutes)</label>
+                                <input type="number" class="form-control" name="session_timeout" 
+                                       value="30" min="5" max="480">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Max Login Attempts</label>
+                                <input type="number" class="form-control" name="max_login_attempts" 
+                                       value="5" min="3" max="10">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="enable_2fa" 
+                               id="enable2FA">
+                        <label class="form-check-label" for="enable2FA">
+                            Enable Two-Factor Authentication
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="force_https" 
+                               id="forceHTTPS" checked>
+                        <label class="form-check-label" for="forceHTTPS">
+                            Force HTTPS connections
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h4>Settings Updated Successfully!</h4>
+                    <p class="text-muted">Your system settings have been saved.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function clearCache() {
+    if (confirm('Are you sure you want to clear the cache?')) {
+        showLoading();
+        // Implement cache clearing logic
+        setTimeout(() => {
+            hideLoading();
+            showAlert('success', 'Cache cleared successfully!');
+        }, 2000);
+    }
+}
+
+function optimizeDatabase() {
+    if (confirm('Are you sure you want to optimize the database?')) {
+        showLoading();
+        // Implement database optimization logic
+        setTimeout(() => {
+            hideLoading();
+            showAlert('success', 'Database optimized successfully!');
+        }, 3000);
+    }
+}
+
+function generateReport() {
+    showLoading();
+    // Implement report generation logic
+    setTimeout(() => {
+        hideLoading();
+        showAlert('info', 'Report generated and emailed to admin!');
+    }, 2000);
+}
+
+function maintenanceMode() {
+    const isEnabled = confirm('Toggle maintenance mode?');
+    if (isEnabled) {
+        showAlert('warning', 'Maintenance mode toggled!');
+    }
+}
+
+function backupSystem() {
+    if (confirm('Create a system backup?')) {
+        showLoading();
+        // Implement backup logic
+        setTimeout(() => {
+            hideLoading();
+            showAlert('success', 'System backup created successfully!');
+        }, 5000);
+    }
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Handle form submission
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading();
+    
+    // Simulate form submission
+    setTimeout(() => {
+        hideLoading();
+        const modal = new bootstrap.Modal(document.getElementById('successModal'));
+        modal.show();
+    }, 2000);
+});
+</script>
+{% endblock %}

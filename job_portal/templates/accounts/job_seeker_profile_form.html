@@ -1,0 +1,397 @@
+<!-- templates/accounts/job_seeker_profile_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}Profile Setup - Job Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-setup-container {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    .profile-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        margin-bottom: 2rem;
+    }
+    .profile-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #4CAF50;
+    }
+    .profile-header i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px 15px;
+        border: 2px solid #e0e0e0;
+        margin-bottom: 0.5rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #4CAF50;
+        box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+    }
+    .btn-save {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        color: white;
+    }
+    .btn-skip {
+        background: transparent;
+        border: 2px solid #6c757d;
+        border-radius: 25px;
+        padding: 10px 25px;
+        color: #6c757d;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .btn-skip:hover {
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+    }
+    .section-title {
+        color: #4CAF50;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-check-input:checked {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-setup-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <i class="fas fa-user-cog"></i>
+                        <h2>{% if is_setup %}Complete Your Profile{% else %}Update Profile{% endif %}</h2>
+                        <p class="text-muted">
+                            {% if is_setup %}
+                                Let's set up your profile to help employers find you
+                            {% else %}
+                                Update your profile information
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information Section -->
+                        <div class="section">
+                            <h4 class="section-title">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Username</label>
+                                        {{ user_form.username }}
+                                        {% if user_form.username.errors %}
+                                            <div class="text-danger small">{{ user_form.username.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        {{ user_form.email }}
+                                        {% if user_form.email.errors %}
+                                            <div class="text-danger small">{{ user_form.email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">First Name</label>
+                                        {{ profile_form.first_name }}
+                                        {% if profile_form.first_name.errors %}
+                                            <div class="text-danger small">{{ profile_form.first_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Last Name</label>
+                                        {{ profile_form.last_name }}
+                                        {% if profile_form.last_name.errors %}
+                                            <div class="text-danger small">{{ profile_form.last_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone</label>
+                                        {{ profile_form.phone }}
+                                        {% if profile_form.phone.errors %}
+                                            <div class="text-danger small">{{ profile_form.phone.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Profile Picture</label>
+                                        {{ profile_form.profile_picture }}
+                                        {% if profile_form.profile_picture.errors %}
+                                            <div class="text-danger small">{{ profile_form.profile_picture.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Information Section -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-briefcase me-2"></i>Professional Information
+                            </h4>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Professional Headline</label>
+                                {{ profile_form.headline }}
+                                {% if profile_form.headline.errors %}
+                                    <div class="text-danger small">{{ profile_form.headline.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Bio / Summary</label>
+                                {{ profile_form.bio }}
+                                {% if profile_form.bio.errors %}
+                                    <div class="text-danger small">{{ profile_form.bio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Experience Level</label>
+                                        {{ profile_form.experience_level }}
+                                        {% if profile_form.experience_level.errors %}
+                                            <div class="text-danger small">{{ profile_form.experience_level.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Position</label>
+                                        {{ profile_form.current_position }}
+                                        {% if profile_form.current_position.errors %}
+                                            <div class="text-danger small">{{ profile_form.current_position.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Company</label>
+                                        {{ profile_form.current_company }}
+                                        {% if profile_form.current_company.errors %}
+                                            <div class="text-danger small">{{ profile_form.current_company.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Resume</label>
+                                        {{ profile_form.resume }}
+                                        {% if profile_form.resume.errors %}
+                                            <div class="text-danger small">{{ profile_form.resume.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Skills (comma-separated)</label>
+                                {{ profile_form.skills }}
+                                {% if profile_form.skills.errors %}
+                                    <div class="text-danger small">{{ profile_form.skills.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Job Preferences Section -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-cog me-2"></i>Job Preferences
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Desired Job Types</label>
+                                        {{ profile_form.desired_job_types }}
+                                        {% if profile_form.desired_job_types.errors %}
+                                            <div class="text-danger small">{{ profile_form.desired_job_types.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Preferred Locations</label>
+                                        {{ profile_form.preferred_locations }}
+                                        {% if profile_form.preferred_locations.errors %}
+                                            <div class="text-danger small">{{ profile_form.preferred_locations.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Minimum Salary ($)</label>
+                                        {{ profile_form.desired_salary_min }}
+                                        {% if profile_form.desired_salary_min.errors %}
+                                            <div class="text-danger small">{{ profile_form.desired_salary_min.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Maximum Salary ($)</label>
+                                        {{ profile_form.desired_salary_max }}
+                                        {% if profile_form.desired_salary_max.errors %}
+                                            <div class="text-danger small">{{ profile_form.desired_salary_max.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3 form-check">
+                                        {{ profile_form.willing_to_relocate }}
+                                        <label class="form-check-label" for="{{ profile_form.willing_to_relocate.id_for_label }}">
+                                            Willing to relocate
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3 form-check">
+                                        {{ profile_form.open_to_remote }}
+                                        <label class="form-check-label" for="{{ profile_form.open_to_remote.id_for_label }}">
+                                            Open to remote work
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social Links Section (Optional) -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-link me-2"></i>Social Links <small class="text-muted">(Optional)</small>
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">LinkedIn URL</label>
+                                        {{ profile_form.linkedin_url }}
+                                        {% if profile_form.linkedin_url.errors %}
+                                            <div class="text-danger small">{{ profile_form.linkedin_url.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">GitHub URL</label>
+                                        {{ profile_form.github_url }}
+                                        {% if profile_form.github_url.errors %}
+                                            <div class="text-danger small">{{ profile_form.github_url.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Portfolio URL</label>
+                                        {{ profile_form.portfolio_url }}
+                                        {% if profile_form.portfolio_url.errors %}
+                                            <div class="text-danger small">{{ profile_form.portfolio_url.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Section -->
+                        <div class="section mt-4">
+                            <h4 class="section-title">
+                                <i class="fas fa-shield-alt me-2"></i>Privacy Settings
+                            </h4>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Profile Visibility</label>
+                                {{ profile_form.profile_visibility }}
+                                {% if profile_form.profile_visibility.errors %}
+                                    <div class="text-danger small">{{ profile_form.profile_visibility.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-save me-3">
+                                <i class="fas fa-save me-2"></i>
+                                {% if is_setup %}Complete Setup{% else %}Update Profile{% endif %}
+                            </button>
+                            
+                            {% if is_setup %}
+                                <a href="{% url 'accounts:job_seeker_dashboard' %}" class="btn btn-skip">
+                                    <i class="fas fa-arrow-right me-2"></i>Skip for now
+                                </a>
+                            {% else %}
+                                <a href="{% url 'accounts:job_seeker_profile' %}" class="btn btn-skip">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

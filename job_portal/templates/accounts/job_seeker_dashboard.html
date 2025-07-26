@@ -1,0 +1,228 @@
+<!-- templates/accounts/job_seeker_dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Job Seeker Dashboard - Job Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    .profile-completeness {
+        margin-bottom: 2rem;
+    }
+    .progress {
+        height: 10px;
+        border-radius: 10px;
+    }
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+    .card-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+        border-radius: 10px 10px 0 0;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>Welcome back, {{ profile.get_full_name|default:user.username }}!</h1>
+                <p class="lead mb-0">Find your next opportunity or track your applications</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'accounts:job_seeker_profile' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Profile Completeness -->
+    {% if stats.profile_completeness < 70 %}
+    <div class="profile-completeness">
+        <div class="alert alert-warning">
+            <h5><i class="fas fa-exclamation-triangle"></i> Complete Your Profile</h5>
+            <p>Your profile is {{ stats.profile_completeness }}% complete. Complete your profile to increase your chances of getting hired!</p>
+            <div class="progress">
+                <div class="progress-bar" style="width: {{ stats.profile_completeness }}%"></div>
+            </div>
+            <div class="mt-2">
+                <a href="{% url 'accounts:job_seeker_profile' %}" class="btn btn-warning btn-sm">Complete Profile</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.applications_count }}</div>
+                <div class="text-muted">Applications</div>
+                <small><a href="{% url 'jobs:my_applications' %}">View All</a></small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.saved_jobs_count }}</div>
+                <div class="text-muted">Saved Jobs</div>
+                <small><a href="{% url 'jobs:saved_jobs' %}">View All</a></small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.profile_completeness }}%</div>
+                <div class="text-muted">Profile Complete</div>
+                <small><a href="{% url 'accounts:job_seeker_profile' %}">Update</a></small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ recommended_jobs.count }}</div>
+                <div class="text-muted">Recommended</div>
+                <small><a href="{% url 'jobs:job_list' %}">Browse Jobs</a></small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Applications -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-paper-plane"></i> Recent Applications
+                </div>
+                <div class="card-body">
+                    {% if recent_applications %}
+                        {% for application in recent_applications %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                            <div>
+                                <h6 class="mb-1">{{ application.job.title }}</h6>
+                                <small class="text-muted">{{ application.job.company.company_name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{{ application.status|yesno:'warning,info,success' }}">
+                                    {{ application.get_status_display }}
+                                </span>
+                                <br>
+                                <small class="text-muted">{{ application.applied_date|date:"M d" }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'jobs:my_applications' %}" class="btn btn-outline-primary btn-sm">
+                                View All Applications
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No applications yet. <a href="{% url 'jobs:job_list' %}">Start applying!</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recommended Jobs -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-star"></i> Recommended for You
+                </div>
+                <div class="card-body">
+                    {% if recommended_jobs %}
+                        {% for job in recommended_jobs %}
+                        <div class="border-bottom py-2">
+                            <h6 class="mb-1">
+                                <a href="{{ job.get_absolute_url }}" class="text-decoration-none">
+                                    {{ job.title }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">
+                                {{ job.company.company_name }} • {{ job.location }}
+                                {% if job.salary_min %}• ${{ job.salary_min|floatformat:0 }}+{% endif %}
+                            </small>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-success btn-sm">
+                                Browse All Jobs
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">
+                            Complete your profile to get personalized job recommendations!
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-search"></i> Browse Jobs
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'accounts:job_seeker_profile' %}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-user-edit"></i> Update Profile
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'jobs:saved_jobs' %}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-bookmark"></i> Saved Jobs
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'jobs:my_applications' %}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-history"></i> My Applications
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

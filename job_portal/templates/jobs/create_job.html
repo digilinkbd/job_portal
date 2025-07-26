@@ -1,0 +1,564 @@
+<!-- templates/jobs/create_job.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Post a Job - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="row mb-4" data-aos="fade-down">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="display-6 text-gradient mb-2">Post a New Job</h1>
+                            <p class="lead text-muted">Find the perfect candidate for your open position</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'jobs:employer_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Creation Form -->
+            <div class="row" data-aos="fade-up">
+                <div class="col-12">
+                    <div class="card shadow-custom">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-plus fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-0">Job Details</h5>
+                                    <small class="opacity-75">Provide detailed information about the position</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="post" enctype="multipart/form-data" id="jobForm">
+                                {% csrf_token %}
+                                
+                                <!-- Basic Job Information -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <h6 class="text-primary mb-3">
+                                            <i class="fas fa-briefcase me-2"></i>Basic Information
+                                        </h6>
+                                        <hr class="mb-4">
+                                    </div>
+                                    
+                                    <div class="col-md-8 mb-3">
+                                        <label for="{{ form.title.id_for_label }}" class="form-label">Job Title *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                            {{ form.title }}
+                                        </div>
+                                        <div class="form-text">Be specific and clear about the role (e.g., "Senior Frontend Developer" not just "Developer")</div>
+                                        {% if form.title.errors %}
+                                            <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.job_type.id_for_label }}" class="form-label">Job Type</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                            {{ form.job_type }}
+                                        </div>
+                                        {% if form.job_type.errors %}
+                                            <div class="text-danger small mt-1">{{ form.job_type.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.location.id_for_label }}" class="form-label">Job Location</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                            {{ form.location }}
+                                        </div>
+                                        <div class="form-text">City, State or "Remote" for remote positions</div>
+                                        {% if form.location.errors %}
+                                            <div class="text-danger small mt-1">{{ form.location.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-sitemap"></i></span>
+                                            {{ form.department }}
+                                        </div>
+                                        {% if form.department.errors %}
+                                            <div class="text-danger small mt-1">{{ form.department.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Job Description -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <h6 class="text-success mb-3">
+                                            <i class="fas fa-file-alt me-2"></i>Job Description
+                                        </h6>
+                                        <hr class="mb-4">
+                                    </div>
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label for="{{ form.description.id_for_label }}" class="form-label">Job Description *</label>
+                                        {{ form.description }}
+                                        <div class="form-text">Provide a detailed description of the role, responsibilities, and what makes this position exciting.</div>
+                                        {% if form.description.errors %}
+                                            <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label for="{{ form.requirements.id_for_label }}" class="form-label">Requirements & Qualifications</label>
+                                        {{ form.requirements }}
+                                        <div class="form-text">List the required skills, experience, education, and qualifications for this position.</div>
+                                        {% if form.requirements.errors %}
+                                            <div class="text-danger small mt-1">{{ form.requirements.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label for="{{ form.responsibilities.id_for_label }}" class="form-label">Key Responsibilities</label>
+                                        {{ form.responsibilities }}
+                                        <div class="form-text">Outline the main duties and responsibilities of this role.</div>
+                                        {% if form.responsibilities.errors %}
+                                            <div class="text-danger small mt-1">{{ form.responsibilities.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Compensation & Benefits -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <h6 class="text-info mb-3">
+                                            <i class="fas fa-dollar-sign me-2"></i>Compensation & Benefits
+                                        </h6>
+                                        <hr class="mb-4">
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.salary_min.id_for_label }}" class="form-label">Minimum Salary</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            {{ form.salary_min }}
+                                            <span class="input-group-text">per year</span>
+                                        </div>
+                                        {% if form.salary_min.errors %}
+                                            <div class="text-danger small mt-1">{{ form.salary_min.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.salary_max.id_for_label }}" class="form-label">Maximum Salary</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            {{ form.salary_max }}
+                                            <span class="input-group-text">per year</span>
+                                        </div>
+                                        {% if form.salary_max.errors %}
+                                            <div class="text-danger small mt-1">{{ form.salary_max.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label for="{{ form.benefits.id_for_label }}" class="form-label">Benefits & Perks</label>
+                                        {{ form.benefits }}
+                                        <div class="form-text">Describe the benefits, perks, and additional compensation offered.</div>
+                                        {% if form.benefits.errors %}
+                                            <div class="text-danger small mt-1">{{ form.benefits.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Experience & Skills -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <h6 class="text-warning mb-3">
+                                            <i class="fas fa-chart-line me-2"></i>Experience & Skills
+                                        </h6>
+                                        <hr class="mb-4">
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.experience_level.id_for_label }}" class="form-label">Experience Level Required</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user-graduate"></i></span>
+                                            {{ form.experience_level }}
+                                        </div>
+                                        {% if form.experience_level.errors %}
+                                            <div class="text-danger small mt-1">{{ form.experience_level.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.education_level.id_for_label }}" class="form-label">Education Level</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
+                                            {{ form.education_level }}
+                                        </div>
+                                        {% if form.education_level.errors %}
+                                            <div class="text-danger small mt-1">{{ form.education_level.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label for="{{ form.skills_required.id_for_label }}" class="form-label">Required Skills</label>
+                                        {{ form.skills_required }}
+                                        <div class="form-text">List the key skills required for this position (comma-separated).</div>
+                                        {% if form.skills_required.errors %}
+                                            <div class="text-danger small mt-1">{{ form.skills_required.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Application Details -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <h6 class="text-secondary mb-3">
+                                            <i class="fas fa-calendar me-2"></i>Application Details
+                                        </h6>
+                                        <hr class="mb-4">
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.application_deadline.id_for_label }}" class="form-label">Application Deadline</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                            {{ form.application_deadline }}
+                                        </div>
+                                        {% if form.application_deadline.errors %}
+                                            <div class="text-danger small mt-1">{{ form.application_deadline.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.positions_available.id_for_label }}" class="form-label">Number of Positions</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                            {{ form.positions_available }}
+                                        </div>
+                                        {% if form.positions_available.errors %}
+                                            <div class="text-danger small mt-1">{{ form.positions_available.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label for="{{ form.application_instructions.id_for_label }}" class="form-label">Application Instructions</label>
+                                        {{ form.application_instructions }}
+                                        <div class="form-text">Provide specific instructions for candidates on how to apply.</div>
+                                        {% if form.application_instructions.errors %}
+                                            <div class="text-danger small mt-1">{{ form.application_instructions.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Work Arrangement -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <h6 class="text-info mb-3">
+                                            <i class="fas fa-home me-2"></i>Work Arrangement
+                                        </h6>
+                                        <hr class="mb-4">
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check form-switch">
+                                            {{ form.remote_work_available }}
+                                            <label class="form-check-label" for="{{ form.remote_work_available.id_for_label }}">
+                                                <i class="fas fa-laptop-house me-2"></i>Remote work available
+                                            </label>
+                                        </div>
+                                        {% if form.remote_work_available.errors %}
+                                            <div class="text-danger small mt-1">{{ form.remote_work_available.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check form-switch">
+                                            {{ form.travel_required }}
+                                            <label class="form-check-label" for="{{ form.travel_required.id_for_label }}">
+                                                <i class="fas fa-plane me-2"></i>Travel required
+                                            </label>
+                                        </div>
+                                        {% if form.travel_required.errors %}
+                                            <div class="text-danger small mt-1">{{ form.travel_required.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check form-switch">
+                                            {{ form.is_urgent }}
+                                            <label class="form-check-label" for="{{ form.is_urgent.id_for_label }}">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>Urgent hiring
+                                            </label>
+                                        </div>
+                                        {% if form.is_urgent.errors %}
+                                            <div class="text-danger small mt-1">{{ form.is_urgent.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Use Crispy Forms for any remaining fields -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        {% for field in form %}
+                                            {% if field.name not in "title,job_type,location,department,description,requirements,responsibilities,salary_min,salary_max,benefits,experience_level,education_level,skills_required,application_deadline,positions_available,application_instructions,remote_work_available,travel_required,is_urgent" %}
+                                                <div class="mb-3">
+                                                    {{ field|as_crispy_field }}
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <hr class="my-4">
+                                        <div class="d-flex justify-content-between">
+                                            <a href="{% url 'jobs:employer_dashboard' %}" class="btn btn-outline-secondary">
+                                                <i class="fas fa-times me-2"></i>Cancel
+                                            </a>
+                                            <div>
+                                                <button type="button" class="btn btn-outline-primary me-2" onclick="previewJob()">
+                                                    <i class="fas fa-eye me-2"></i>Preview Job
+                                                </button>
+                                                <button type="submit" name="action" value="draft" class="btn btn-outline-secondary me-2">
+                                                    <i class="fas fa-save me-2"></i>Save as Draft
+                                                </button>
+                                                <button type="submit" name="action" value="publish" class="btn btn-primary">
+                                                    <i class="fas fa-paper-plane me-2"></i>Publish Job
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="row mt-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="col-12">
+                    <div class="card border-success">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 text-success">
+                                <i class="fas fa-lightbulb me-2"></i>Tips for Creating Great Job Postings
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use specific, descriptive job titles</li>
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Be clear about required qualifications</li>
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include salary range for better responses</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Highlight company culture and benefits</li>
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Specify remote work options</li>
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Keep job descriptions concise but comprehensive</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap classes to form elements
+    const formControls = document.querySelectorAll('input[type="text"], input[type="email"], input[type="url"], input[type="number"], input[type="date"], textarea, select');
+    formControls.forEach(element => {
+        if (element.type === 'checkbox') {
+            element.classList.add('form-check-input');
+        } else if (element.tagName === 'SELECT') {
+            element.classList.add('form-select');
+        } else {
+            element.classList.add('form-control');
+        }
+    });
+    
+    // Auto-resize textareas
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+        
+        // Initial resize
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    });
+    
+    // Form validation
+    const form = document.getElementById('jobForm');
+    form.addEventListener('submit', function(e) {
+        const title = document.querySelector('input[name="title"]').value.trim();
+        const description = document.querySelector('textarea[name="description"]').value.trim();
+        
+        if (!title) {
+            alert('Please enter a job title.');
+            e.preventDefault();
+            return;
+        }
+        
+        if (!description) {
+            alert('Please enter a job description.');
+            e.preventDefault();
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = e.submitter;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Publishing...';
+        }
+    });
+    
+    // Skills input enhancement
+    const skillsInput = document.querySelector('textarea[name="skills_required"], input[name="skills_required"]');
+    if (skillsInput) {
+        skillsInput.addEventListener('blur', function() {
+            let skills = this.value.split(',').map(skill => skill.trim()).filter(skill => skill);
+            this.value = skills.join(', ');
+        });
+    }
+    
+    // Salary validation
+    const salaryMin = document.querySelector('input[name="salary_min"]');
+    const salaryMax = document.querySelector('input[name="salary_max"]');
+    
+    if (salaryMin && salaryMax) {
+        function validateSalaryRange() {
+            const min = parseFloat(salaryMin.value) || 0;
+            const max = parseFloat(salaryMax.value) || 0;
+            
+            if (min > 0 && max > 0 && min > max) {
+                salaryMax.setCustomValidity('Maximum salary must be greater than minimum salary');
+            } else {
+                salaryMax.setCustomValidity('');
+            }
+        }
+        
+        salaryMin.addEventListener('blur', validateSalaryRange);
+        salaryMax.addEventListener('blur', validateSalaryRange);
+    }
+});
+
+function previewJob() {
+    // Create a simple preview (you can enhance this)
+    const title = document.querySelector('input[name="title"]').value;
+    const description = document.querySelector('textarea[name="description"]').value;
+    
+    if (!title || !description) {
+        alert('Please fill in at least the job title and description to preview.');
+        return;
+    }
+    
+    // You can implement a modal preview or redirect to a preview page
+    alert('Job preview functionality will be implemented here. The job looks good so far!');
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+    }
+    
+    .input-group-text {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: #e9ecef;
+        color: var(--primary-color);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .card-header {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    }
+    
+    /* Required field indicators */
+    .form-label:after {
+        content: "";
+    }
+    
+    .form-label[for$="title"]:after,
+    .form-label[for$="description"]:after {
+        content: " *";
+        color: #dc3545;
+    }
+    
+    /* Progress indicator (optional) */
+    .progress-step {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+    
+    /* Form section spacing */
+    .row.mb-4:last-of-type {
+        margin-bottom: 2rem !important;
+    }
+    
+    /* Switch styling */
+    .form-check-input {
+        width: 2.5rem;
+        height: 1.25rem;
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+</style>
+{% endblock %}

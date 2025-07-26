@@ -1,147 +1,993 @@
 {% extends 'base.html' %}
 
-{% block title %}Browse Jobs - Job Portal{% endblock %}
+{% load mathfilters %}
+
+{% block title %}Find Jobs - JobPortal{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+    .jobs-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .jobs-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,1000 1000,1000 1000,200 0,600"/></svg>');
+        background-size: cover;
+    }
+    
+    .search-filters-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-top: -2rem;
+        position: relative;
+        z-index: 3;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(20px);
+    }
+    
+    .filter-sidebar {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 120px;
+        max-height: calc(100vh - 140px);
+        overflow-y: auto;
+    }
+    
+    .filter-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .filter-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .filter-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: var(--dark-color);
+        display: flex;
+        align-items: center;
+        justify-content: between;
+    }
+    
+    .filter-toggle {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-left: auto;
+    }
+    
+    .filter-content {
+        transition: var(--transition);
+    }
+    
+    .filter-content.collapsed {
+        display: none;
+    }
+    
+    .job-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        transition: var(--transition);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .job-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--primary-gradient);
+        transform: scaleY(0);
+        transition: var(--transition);
+    }
+    
+    .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .job-card:hover::before {
+        transform: scaleY(1);
+    }
+    
+    .company-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    .job-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        text-decoration: none;
+        margin-bottom: 0.5rem;
+        display: block;
+        transition: var(--transition);
+    }
+    
+    .job-title:hover {
+        color: var(--primary-color);
+    }
+    
+    .company-name {
+        color: #6c757d;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .job-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .meta-item i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+    
+    .job-description {
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .job-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .job-tag {
+        background: rgba(102, 126, 234, 0.1);
+        color: var(--primary-color);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    
+    .job-tag:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .job-footer {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .salary-range {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--success-color);
+    }
+    
+    .job-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .btn-apply {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+    
+    .btn-apply:hover {
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-save {
+        background: transparent;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        padding: 0.75rem;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+    
+    .btn-save:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-save.saved {
+        background: var(--warning-color);
+        border-color: var(--warning-color);
+        color: white;
+    }
+    
+    .jobs-toolbar {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .results-info {
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    .view-toggle {
+        display: flex;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+    }
+    
+    .view-btn {
+        background: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        color: #6c757d;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .view-btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .sort-dropdown {
+        min-width: 200px;
+    }
+    
+    .filter-chip {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin: 0.25rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .filter-chip .remove {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.7rem;
+    }
+    
+    .no-jobs {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .no-jobs i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 2rem;
+    }
+    
+    .pagination-custom {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-top: 3rem;
+    }
+    
+    .page-link {
+        border: none;
+        color: var(--primary-color);
+        padding: 0.75rem 1rem;
+        margin: 0 0.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    
+    .page-link:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .page-item.active .page-link {
+        background: var(--primary-gradient);
+        border-color: transparent;
+    }
+    
+    .mobile-filter-btn {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        z-index: 1000;
+    }
+    
+    @media (max-width: 992px) {
+        .filter-sidebar {
+            position: static;
+            margin-bottom: 2rem;
+        }
+        
+        .mobile-filter-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .jobs-header {
+            padding: 2rem 0;
+        }
+        
+        .search-filters-container {
+            margin-top: -1rem;
+            padding: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .job-card {
+            padding: 1.5rem;
+        }
+        
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 1rem;
+        }
+        
+        .job-title {
+            font-size: 1.2rem;
+        }
+        
+        .job-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .job-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .job-actions {
+            justify-content: center;
+        }
+    }
+    
+    /* Advanced Search Styles */
+    .advanced-search {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        display: none;
+    }
+    
+    .advanced-search.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .salary-range-slider {
+        margin: 1rem 0;
+    }
+    
+    .range-labels {
+        display: flex;
+        justify-content: between;
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+    
+    /* Loading Animation */
+    .loading-jobs {
+        text-align: center;
+        padding: 3rem;
+    }
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(102, 126, 234, 0.1);
+        border-left: 4px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Filter Jobs</h5>
-                </div>
-                <div class="card-body">
-                    <form method="get">
-                        <div class="mb-3">
-                            {{ form.search.label_tag }}
-                            {{ form.search }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.category.label_tag }}
-                            {{ form.category }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.job_type.label_tag }}
-                            {{ form.job_type }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.experience_level.label_tag }}
-                            {{ form.experience_level }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.location.label_tag }}
-                            {{ form.location }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.salary_min.label_tag }}
-                            {{ form.salary_min }}
-                        </div>
-                        <div class="mb-3 form-check">
-                            {{ form.is_remote }}
-                            {{ form.is_remote.label_tag }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.sort_by.label_tag }}
-                            {{ form.sort_by }}
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Filter Jobs</button>
-                    </form>
+<!-- Jobs Header -->
+<section class="jobs-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-5 fw-bold mb-3">
+                    Find Your Perfect Job
+                </h1>
+                <p class="lead opacity-90">
+                    Discover {{ total_jobs|default:"thousands of" }} amazing opportunities from top companies
+                </p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <div class="d-flex align-items-center justify-content-end gap-3">
+                    <div class="text-center">
+                        <div class="h4 mb-0">{{ total_jobs|default:"10,000" }}+</div>
+                        <small>Active Jobs</small>
+                    </div>
+                    <div class="text-center">
+                        <div class="h4 mb-0">500+</div>
+                        <small>Companies</small>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+</section>
 
-        <div class="col-md-9">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Available Jobs</h2>
-                <span class="text-muted">{{ total_jobs }} jobs found</span>
+<div class="container">
+    <!-- Search Filters -->
+    <div class="search-filters-container" data-aos="fade-up">
+        <form method="get" id="jobSearchForm">
+            <div class="row g-3">
+                <div class="col-lg-4 col-md-6">
+                    <div class="position-relative">
+                        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" name="search" value="{{ form.search.value|default:'' }}" 
+                               class="form-control ps-5" placeholder="Job title, company, or keywords...">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="position-relative">
+                        <i class="fas fa-map-marker-alt position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" name="location" value="{{ form.location.value|default:'' }}" 
+                               class="form-control ps-5" placeholder="Location...">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <select name="job_type" class="form-select">
+                        <option value="">All Job Types</option>
+                        {% for value, label in form.job_type.field.choices %}
+                            {% if value %}
+                            <option value="{{ value }}" {% if value == form.job_type.value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                </div>
             </div>
+            
+            <!-- Advanced Search Toggle -->
+            <div class="text-center mt-3">
+                <button type="button" class="btn btn-link text-decoration-none" onclick="toggleAdvancedSearch()">
+                    <i class="fas fa-sliders-h me-2"></i>Advanced Search
+                    <i class="fas fa-chevron-down ms-1" id="advancedToggleIcon"></i>
+                </button>
+            </div>
+            
+            <!-- Advanced Search Panel -->
+            <div class="advanced-search" id="advancedSearch">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-select">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category.id|stringformat:"s" == form.category.value %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Experience Level</label>
+                        <select name="experience_level" class="form-select">
+                            <option value="">All Levels</option>
+                            {% for value, label in form.experience_level.field.choices %}
+                                {% if value %}
+                                <option value="{{ value }}" {% if value == form.experience_level.value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Minimum Salary</label>
+                        <input type="number" name="salary_min" value="{{ form.salary_min.value|default:'' }}" 
+                               class="form-control" placeholder="e.g., 50000">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_remote" 
+                                   {% if form.is_remote.value %}checked{% endif %} id="remoteCheck">
+                            <label class="form-check-label" for="remoteCheck">
+                                <i class="fas fa-home me-2 text-success"></i>Remote Work Only
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sort By</label>
+                        <select name="sort_by" class="form-select">
+                            {% for value, label in form.sort_by.field.choices %}
+                            <option value="{{ value }}" {% if value == form.sort_by.value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">Clear All</button>
+                </div>
+            </div>
+        </form>
+    </div>
 
+    <!-- Active Filters -->
+    {% if request.GET %}
+    <div class="active-filters mb-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="text-muted me-2">Active filters:</span>
+            {% if form.search.value %}
+                <span class="filter-chip">
+                    Search: {{ form.search.value }}
+                    <span class="remove" onclick="removeFilter('search')">&times;</span>
+                </span>
+            {% endif %}
+            {% if form.location.value %}
+                <span class="filter-chip">
+                    Location: {{ form.location.value }}
+                    <span class="remove" onclick="removeFilter('location')">&times;</span>
+                </span>
+            {% endif %}
+            {% if form.job_type.value %}
+                <span class="filter-chip">
+                    Type: {{ form.job_type.value|title }}
+                    <span class="remove" onclick="removeFilter('job_type')">&times;</span>
+                </span>
+            {% endif %}
+            <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearAllFilters()">
+                Clear All
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Jobs Toolbar -->
+    <div class="jobs-toolbar" data-aos="fade-up" data-aos-delay="200">
+        <div class="results-info">
+            <strong>{{ total_jobs|default:page_obj.paginator.count }}</strong> jobs found
+            {% if form.search.value %}for "{{ form.search.value }}"{% endif %}
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="list">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button class="view-btn" data-view="grid">
+                    <i class="fas fa-th"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jobs Grid -->
+    <div class="row">
+        <div class="col-12">
             {% if page_obj %}
-                {% for job in page_obj %}
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <h5 class="card-title">
-                                        <a href="{% url 'jobs:job_detail' job.pk %}" class="text-decoration-none">
+                <div id="jobsContainer">
+                    {% for job in page_obj %}
+                    <div class="job-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:3|mul:100 }}">
+                        <div class="d-flex">
+                            <div class="company-logo">
+                                {{ job.company.company_name|slice:":2"|upper }}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <a href="{{ job.get_absolute_url }}" class="job-title">
                                             {{ job.title }}
                                         </a>
-                                    </h5>
-                                    <h6 class="text-muted">{{ job.company.company_name }}</h6>
-                                    <p class="card-text">{{ job.description|truncatewords:30 }}</p>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <span class="badge bg-secondary">{{ job.get_job_type_display }}</span>
-                                        <span class="badge bg-info">{{ job.get_experience_level_display }}</span>
-                                        {% if job.is_remote %}
-                                            <span class="badge bg-success">Remote</span>
-                                        {% endif %}
-                                        {% if job.category %}
-                                            <span class="badge bg-warning text-dark">{{ job.category.name }}</span>
+                                        <div class="company-name">{{ job.company.company_name }}</div>
+                                    </div>
+                                    <div class="job-actions">
+                                        {% if user.is_authenticated and user.user_type == 'job_seeker' %}
+                                        <button class="btn-save" data-job-id="{{ job.id }}" title="Save job">
+                                            <i class="fas fa-bookmark"></i>
+                                        </button>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-4 text-end">
-                                    <p class="mb-1"><strong>{{ job.get_salary_range }}</strong></p>
-                                    <p class="text-muted mb-1">{{ job.location }}</p>
-                                    <p class="text-muted mb-2">
-                                        <small>Posted {{ job.created_at|timesince }} ago</small>
-                                    </p>
-                                    <p class="text-muted mb-0">
-                                        <small>{{ job.views_count }} views</small>
-                                    </p>
+                                
+                                <div class="job-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ job.location }}
+                                        {% if job.is_remote %}
+                                            <span class="badge bg-success ms-1">Remote</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-briefcase"></i>
+                                        {{ job.get_job_type_display }}
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-layer-group"></i>
+                                        {{ job.get_experience_level_display }}
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        {{ job.created_at|timesince }} ago
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-outline-primary btn-sm">
-                                    View Details
-                                </a>
-                                {% if user.is_authenticated and user.user_type == 'job_seeker' %}
-                                    <a href="{% url 'jobs:apply_job' job.pk %}" class="btn btn-primary btn-sm">
-                                        Apply Now
-                                    </a>
+                                
+                                <div class="job-description">
+                                    {{ job.description|truncatewords:30 }}
+                                </div>
+                                
+                                {% if job.get_required_skills_list %}
+                                <div class="job-tags">
+                                    {% for skill in job.get_required_skills_list|slice:":5" %}
+                                    <a href="?search={{ skill }}" class="job-tag">{{ skill }}</a>
+                                    {% endfor %}
+                                    {% if job.get_required_skills_list|length > 5 %}
+                                    <span class="job-tag">+{{ job.get_required_skills_list|length|add:"-5" }} more</span>
+                                    {% endif %}
+                                </div>
                                 {% endif %}
+                                
+                                <div class="job-footer">
+                                    <div class="salary-range">
+                                        {% if job.salary_min %}
+                                            <i class="fas fa-dollar-sign me-1"></i>{{ job.get_salary_range }}
+                                        {% else %}
+                                            <span class="text-muted">Salary not specified</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="job-actions">
+                                        <a href="{{ job.get_absolute_url }}" class="btn btn-outline-primary me-2">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </a>
+                                        {% if user.is_authenticated and user.user_type == 'job_seeker' %}
+                                        <a href="{% url 'jobs:apply_job' job.pk %}" class="btn-apply">
+                                            <i class="fas fa-paper-plane me-1"></i>Apply Now
+                                        </a>
+                                        {% else %}
+                                        <a href="{% url 'accounts:login' %}?next={{ request.get_full_path }}" class="btn-apply">
+                                            <i class="fas fa-sign-in-alt me-1"></i>Sign In to Apply
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
 
                 <!-- Pagination -->
                 {% if page_obj.has_other_pages %}
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center">
+                <div class="pagination-custom" data-aos="fade-up">
+                    <nav aria-label="Jobs pagination">
+                        <ul class="pagination justify-content-center mb-0">
                             {% if page_obj.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Previous</a>
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{{ request.GET.urlencode }}">
+                                        <i class="fas fa-chevron-left me-1"></i>Previous
+                                    </a>
                                 </li>
                             {% endif %}
                             
-                            {% for page_num in page_obj.paginator.page_range %}
-                                {% if page_num == page_obj.number %}
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
                                     <li class="page-item active">
-                                        <span class="page-link">{{ page_num }}</span>
+                                        <span class="page-link">{{ num }}</span>
                                     </li>
-                                {% else %}
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_num }}">{{ page_num }}</a>
+                                        <a class="page-link" href="?page={{ num }}{{ request.GET.urlencode }}">{{ num }}</a>
                                     </li>
                                 {% endif %}
                             {% endfor %}
                             
                             {% if page_obj.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next</a>
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{{ request.GET.urlencode }}">
+                                        Next<i class="fas fa-chevron-right ms-1"></i>
+                                    </a>
                                 </li>
                             {% endif %}
                         </ul>
                     </nav>
+                </div>
                 {% endif %}
+
             {% else %}
-                <div class="text-center py-5">
-                    <h4>No jobs found</h4>
-                    <p class="text-muted">Try adjusting your search criteria</p>
+                <div class="no-jobs" data-aos="fade-up">
+                    <i class="fas fa-search"></i>
+                    <h3>No Jobs Found</h3>
+                    <p class="text-muted">We couldn't find any jobs matching your criteria. Try adjusting your filters or search terms.</p>
+                    <button class="btn btn-primary" onclick="clearAllFilters()">
+                        <i class="fas fa-redo me-2"></i>Clear Filters
+                    </button>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Mobile Filter Button -->
+<button class="mobile-filter-btn d-lg-none" onclick="toggleMobileFilters()">
+    <i class="fas fa-filter"></i>
+</button>
+
+<!-- Loading Overlay -->
+<div id="loadingJobs" class="loading-jobs" style="display: none;">
+    <div class="loading-spinner"></div>
+    <p class="text-muted">Loading jobs...</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Advanced Search Toggle
+    function toggleAdvancedSearch() {
+        const advancedSearch = document.getElementById('advancedSearch');
+        const icon = document.getElementById('advancedToggleIcon');
+        
+        if (advancedSearch.classList.contains('show')) {
+            advancedSearch.classList.remove('show');
+            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        } else {
+            advancedSearch.classList.add('show');
+            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        }
+    }
+
+    // Remove specific filter
+    function removeFilter(filterName) {
+        const form = document.getElementById('jobSearchForm');
+        const input = form.querySelector(`[name="${filterName}"]`);
+        if (input) {
+            input.value = '';
+            form.submit();
+        }
+    }
+
+    // Clear all filters
+    function clearAllFilters() {
+        const form = document.getElementById('jobSearchForm');
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
+        form.submit();
+    }
+
+    // Save/Unsave job functionality
+    document.querySelectorAll('.btn-save').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const jobId = this.dataset.jobId;
+            const icon = this.querySelector('i');
+            
+            fetch(`/jobs/job/${jobId}/save/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.saved) {
+                    this.classList.add('saved');
+                    icon.classList.replace('far', 'fas');
+                    showToast('success', 'Job saved successfully!');
+                } else {
+                    this.classList.remove('saved');
+                    icon.classList.replace('fas', 'far');
+                    showToast('info', 'Job removed from saved list');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Failed to save job');
+            });
+        });
+    });
+
+    // View toggle functionality
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const view = this.dataset.view;
+            const container = document.getElementById('jobsContainer');
+            
+            if (view === 'grid') {
+                container.classList.add('grid-view');
+            } else {
+                container.classList.remove('grid-view');
+            }
+        });
+    });
+
+    // Auto-submit form on filter changes
+    document.querySelectorAll('#jobSearchForm select').forEach(select => {
+        select.addEventListener('change', function() {
+            document.getElementById('jobSearchForm').submit();
+        });
+    });
+
+    // Show loading on form submit
+    document.getElementById('jobSearchForm').addEventListener('submit', function() {
+        document.getElementById('loadingJobs').style.display = 'block';
+        document.getElementById('jobsContainer').style.opacity = '0.5';
+    });
+
+    // Toast notification function
+    function showToast(type, message) {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
+        toast.style.position = 'fixed';
+        toast.style.top = '20px';
+        toast.style.right = '20px';
+        toast.style.zIndex = '9999';
+        toast.style.minWidth = '300px';
+        toast.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+
+    // Smooth scrolling to results after filter
+    if (window.location.search) {
+        setTimeout(() => {
+            const toolbar = document.querySelector('.jobs-toolbar');
+            if (toolbar) {
+                toolbar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 500);
+    }
+
+    // Initialize saved job states
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check which jobs are already saved and update UI accordingly
+        document.querySelectorAll('.btn-save').forEach(btn => {
+            // You can implement logic here to check saved status from server
+            // and update the UI accordingly
+        });
+    });
+</script>
 {% endblock %}

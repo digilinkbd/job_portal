@@ -1,0 +1,378 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Analytics - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .analytics-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .metric-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .metric-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .metric-success { color: #4CAF50; }
+    .metric-info { color: #2196F3; }
+    .metric-warning { color: #FF9800; }
+    .metric-purple { color: #9C27B0; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Analytics Header -->
+<div class="analytics-header">
+    <div class="row">
+        <!-- User Growth Chart -->
+        <div class="col-xl-8">
+            <div class="chart-container">
+                <h4><i class="fas fa-chart-line text-primary"></i> User Growth Trend</h4>
+                <canvas id="userGrowthChart" height="100"></canvas>
+            </div>
+        </div>
+        
+        <!-- Application Timeline -->
+        <div class="col-xl-4">
+            <div class="chart-container">
+                <h4><i class="fas fa-clock text-success"></i> Application Timeline</h4>
+                <canvas id="applicationChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Category Performance -->
+        <div class="col-xl-6">
+            <div class="analytics-card">
+                <h4><i class="fas fa-tags text-secondary"></i> Category Performance</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Total Jobs</th>
+                                <th>Active Jobs</th>
+                                <th>Applications</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in category_stats %}
+                            <tr>
+                                <td><strong>{{ category.name }}</strong></td>
+                                <td><span class="badge bg-primary">{{ category.total_jobs }}</span></td>
+                                <td><span class="badge bg-success">{{ category.active_jobs }}</span></td>
+                                <td><span class="badge bg-warning">{{ category.total_applications }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performing Companies -->
+        <div class="col-xl-6">
+            <div class="analytics-card">
+                <h4><i class="fas fa-building text-info"></i> Top Performing Companies</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Jobs Posted</th>
+                                <th>Applications</th>
+                                <th>Avg per Job</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for company in company_stats %}
+                            <tr>
+                                <td>
+                                    <strong>{{ company.company_name }}</strong>
+                                    {% if company.website %}
+                                    <br><small><a href="{{ company.website }}" target="_blank" class="text-muted">{{ company.website }}</a></small>
+                                    {% endif %}
+                                </td>
+                                <td><span class="badge bg-primary">{{ company.total_jobs }}</span></td>
+                                <td><span class="badge bg-success">{{ company.total_applications }}</span></td>
+                                <td><span class="badge bg-info">{{ company.avg_applications_per_job|floatformat:1 }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Growth Analytics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="chart-container">
+                <h4><i class="fas fa-chart-area text-purple"></i> Detailed Growth Analytics</h4>
+                <canvas id="detailedGrowthChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+const userGrowthData = {{ user_growth|safe }};
+
+const userGrowthChart = new Chart(userGrowthCtx, {
+    type: 'line',
+    data: {
+        labels: userGrowthData.map(item => item.date),
+        datasets: [{
+            label: 'Daily Registrations',
+            data: userGrowthData.map(item => item.daily),
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        }, {
+            label: 'Cumulative Users',
+            data: userGrowthData.map(item => item.cumulative),
+            borderColor: '#764ba2',
+            backgroundColor: 'rgba(118, 75, 162, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            yAxisID: 'y1'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Daily Registrations'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                    display: true,
+                    text: 'Total Users'
+                },
+                grid: {
+                    drawOnChartArea: false,
+                },
+            }
+        }
+    }
+});
+
+// Application Timeline Chart
+const applicationCtx = document.getElementById('applicationChart').getContext('2d');
+const applicationData = {{ application_timeline|safe }};
+
+const applicationChart = new Chart(applicationCtx, {
+    type: 'bar',
+    data: {
+        labels: applicationData.map(item => item.date),
+        datasets: [{
+            label: 'Applications',
+            data: applicationData.map(item => item.applications),
+            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Applications'
+                }
+            }
+        }
+    }
+});
+
+// Detailed Growth Chart
+const detailedCtx = document.getElementById('detailedGrowthChart').getContext('2d');
+
+const detailedGrowthChart = new Chart(detailedCtx, {
+    type: 'line',
+    data: {
+        labels: userGrowthData.map(item => item.date),
+        datasets: [{
+            label: 'New Users',
+            data: userGrowthData.map(item => item.daily),
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }, {
+            label: 'Applications',
+            data: applicationData.map(item => item.applications),
+            borderColor: '#FF9800',
+            backgroundColor: 'rgba(255, 152, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Count'
+                }
+            }
+        }
+    }
+});
+
+// Auto-refresh charts every 60 seconds
+setInterval(function() {
+    // You can implement real-time updates here
+    console.log('Charts can be updated with real-time data');
+}, 60000);
+
+// Export chart data
+function exportChartData(chartType) {
+    const data = {
+        userGrowth: userGrowthData,
+        applications: applicationData
+    };
+    
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `analytics_data_${chartType}.json`;
+    link.click();
+}
+</script>
+{% endblock %} class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-chart-bar"></i> Analytics Dashboard</h1>
+                <p class="lead mb-0">Comprehensive insights into your job portal performance</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <form method="get" class="d-flex align-items-center">
+                    <label class="form-label me-2 mb-0 text-white">Period:</label>
+                    <select name="days" class="form-select" onchange="this.form.submit()">
+                        <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                        <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                        <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+                        <option value="365" {% if days == 365 %}selected{% endif %}>Last year</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Key Metrics -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-number metric-success">{{ success_rate }}%</div>
+                <div class="text-muted">Success Rate</div>
+                <small class="text-success">Application to hire ratio</small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-number metric-info">{{ user_growth|length }}</div>
+                <div class="text-muted">Growth Points</div>
+                <small class="text-info">Daily tracking data</small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-number metric-warning">{{ category_stats|length }}</div>
+                <div class="text-muted">Active Categories</div>
+                <small class="text-warning">Job categories with posts</small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-number metric-purple">{{ company_stats|length }}</div>
+                <div class="text-muted">Top Companies</div>
+                <small class="text-info">Most active employers</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="analytics-card">
+                <h4><i class="fas fa-info-circle text-secondary"></i> Analytics Overview</h4>
+                <p class="text-muted">This dashboard provides a comprehensive overview of your job portal's performance, including user growth trends, application timelines, and category performance.</p>

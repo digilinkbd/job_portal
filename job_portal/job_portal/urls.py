@@ -28,7 +28,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('jobs/', include('jobs.urls')),
-    path('', home_redirect, name='home'),
+    path('', include('jobs.urls')),  # For homepage
+    path('admin-panel/', include('admin_panel.urls')),
+    
 ]
 
 # Serve media files in development

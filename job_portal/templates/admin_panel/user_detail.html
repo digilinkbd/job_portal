@@ -1,0 +1,266 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}{{ user.username }} - User Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .user-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    .profile-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .user-avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0 auto 1rem;
+    }
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+    .status-active { background: #d4edda; color: #155724; }
+    .status-inactive { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="user-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-user"></i> User Details</h1>
+                <p class="lead mb-0">Comprehensive view of {{ user.username }}'s account</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'admin_panel:user_management' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Users
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- User Profile -->
+        <div class="col-xl-4">
+            <div class="profile-card text-center">
+                <div class="user-avatar-large">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <h3>{{ user.get_full_name|default:user.username }}</h3>
+                <p class="text-muted">{{ user.get_user_type_display }}</p>
+                
+                <span class="status-badge status-{% if user.is_active %}active{% else %}inactive{% endif %}">
+                    {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+                
+                {% if user.is_superuser %}
+                <br><span class="badge bg-danger mt-2">Superuser</span>
+                {% endif %}
+                
+                <hr>
+                
+                <div class="text-start">
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Joined:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+                    <p><strong>Last Login:</strong> 
+                        {% if user.last_login %}
+                            {{ user.last_login|date:"M d, Y H:i" }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </p>
+                </div>
+                
+                {% if not user.is_superuser %}
+                <button class="btn btn-warning w-100 mt-3" 
+                        onclick="toggleUserStatus({{ user.id }}, {{ user.is_active|yesno:'false,true' }})">
+                    <i class="fas fa-{% if user.is_active %}pause{% else %}play{% endif %}"></i>
+                    {% if user.is_active %}Deactivate{% else %}Activate{% endif %} User
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- User Statistics -->
+        <div class="col-xl-8">
+            <div class="row">
+                {% for key, value in stats.items %}
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <h3 class="text-primary">{{ value }}</h3>
+                        <p class="text-muted">{{ key|title|replace:"_":" " }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Profile Details -->
+            {% if profile %}
+            <div class="profile-card">
+                <h4><i class="fas fa-info-circle text-info"></i> Profile Information</h4>
+                
+                {% if user.user_type == 'job_seeker' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Job Title:</strong> {{ profile.job_title|default:"Not specified" }}</p>
+                            <p><strong>Experience Level:</strong> {{ profile.get_experience_level_display|default:"Not specified" }}</p>
+                            <p><strong>Location:</strong> {{ profile.location|default:"Not specified" }}</p>
+                            <p><strong>Phone:</strong> {{ profile.phone|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Salary Expectation:</strong> ${{ profile.salary_expectation|default:"Not specified" }}</p>
+                            <p><strong>Employment Type:</strong> {{ profile.get_employment_type_display|default:"Not specified" }}</p>
+                            <p><strong>Remote Work:</strong> {{ profile.remote_work|yesno:"Yes,No,Not specified" }}</p>
+                            <p><strong>Profile Visibility:</strong> {{ profile.get_profile_visibility_display|default:"Not set" }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if profile.bio %}
+                    <div class="mt-3">
+                        <strong>Bio:</strong>
+                        <p class="mt-2">{{ profile.bio }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.skills %}
+                    <div class="mt-3">
+                        <strong>Skills:</strong>
+                        <p class="mt-2">{{ profile.skills }}</p>
+                    </div>
+                    {% endif %}
+                    
+                {% elif user.user_type == 'employer' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Company:</strong> {{ profile.company_name|default:"Not specified" }}</p>
+                            <p><strong>Industry:</strong> {{ profile.industry|default:"Not specified" }}</p>
+                            <p><strong>Company Size:</strong> {{ profile.get_company_size_display|default:"Not specified" }}</p>
+                            <p><strong>Phone:</strong> {{ profile.phone|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Website:</strong> 
+                                {% if profile.website %}
+                                    <a href="{{ profile.website }}" target="_blank">{{ profile.website }}</a>
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </p>
+                            <p><strong>Location:</strong> {{ profile.location|default:"Not specified" }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if profile.description %}
+                    <div class="mt-3">
+                        <strong>Company Description:</strong>
+                        <p class="mt-2">{{ profile.description }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.benefits %}
+                    <div class="mt-3">
+                        <strong>Benefits:</strong>
+                        <p class="mt-2">{{ profile.benefits }}</p>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="profile-card">
+                <h4><i class="fas fa-exclamation-triangle text-warning"></i> Profile Not Completed</h4>
+                <p class="text-muted">This user hasn't completed their profile setup yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Toggle Status Modal -->
+<div class="modal fade" id="toggleStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="toggleStatusMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmToggleStatus">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let userToToggle = null;
+let newStatus = null;
+
+function toggleUserStatus(userId, activate) {
+    userToToggle = userId;
+    newStatus = activate;
+    
+    const action = activate ? 'activate' : 'deactivate';
+    const message = `Are you sure you want to ${action} this user?`;
+    
+    document.getElementById('toggleStatusMessage').textContent = message;
+    
+    const modal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
+    modal.show();
+}
+
+document.getElementById('confirmToggleStatus').addEventListener('click', function() {
+    if (userToToggle && newStatus !== null) {
+        fetch(`/admin-panel/users/${userToToggle}/toggle-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('toggleStatusModal'));
+    modal.hide();
+});
+</script>
+{% endblock %}

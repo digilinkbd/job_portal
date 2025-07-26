@@ -1,0 +1,322 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Job Management - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .jobs-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .table th {
+        background: #f8f9fa;
+        border: none;
+        font-weight: 600;
+        color: #495057;
+        padding: 1rem;
+    }
+    .table td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    .table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s ease;
+    }
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .status-active { background: #d4edda; color: #155724; }
+    .status-inactive { background: #f8d7da; color: #721c24; }  
+    .status-closed { background: #d1ecf1; color: #0c5460; }
+    .action-btn {
+        padding: 0.25rem 0.75rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 0.125rem;
+    }
+    .btn-view {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+    .btn-edit {
+        background: #fff3e0;
+        color: #f57c00;  
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2><i class="fas fa-briefcase text-primary"></i> Job Management</h2>
+                <p class="text-muted mb-0">Manage all job postings and their status</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group" role="group">
+                    <a href="{% url 'admin_panel:export_jobs' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-download"></i> Export CSV
+                    </a>
+                    <button class="btn btn-primary" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="get" class="row align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    {% for value, label in job_statuses %}
+                        <option value="{{ value }}" {% if value == status %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == category %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" value="{{ search }}" class="form-control" 
+                       placeholder="Job title, company name...">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Jobs Table -->
+    <div class="jobs-table">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Applications</th>
+                        <th>Posted Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in page_obj %}
+                    <tr id="job-{{ job.id }}">
+                        <td>
+                            <div>
+                                <strong>{{ job.title }}</strong>
+                                <br><small class="text-muted">{{ job.location|default:"Remote" }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>{{ job.company.company_name }}</strong>
+                            {% if job.company.website %}
+                            <br><a href="{{ job.company.website }}" target="_blank" class="text-muted small">
+                                <i class="fas fa-external-link-alt"></i> Website
+                            </a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if job.category %}
+                                <span class="badge bg-secondary">{{ job.category.name }}</span>
+                            {% else %}
+                                <span class="text-muted">No Category</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ job.status }}">
+                                {{ job.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ job.applications.count }}</strong>
+                            <br><small class="text-muted">applications</small>
+                        </td>
+                        <td>
+                            {{ job.created_at|date:"M d, Y" }}
+                            <br><small class="text-muted">{{ job.created_at|timesince }} ago</small>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap">
+                                <a href="{% url 'jobs:job_detail' job.pk %}" class="action-btn btn-view" target="_blank">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <button class="action-btn btn-edit" onclick="changeJobStatus({{ job.id }}, '{{ job.status }}')">
+                                    <i class="fas fa-edit"></i> Status
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="p-3 border-top">
+            <nav aria-label="Job pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status %}&status={{ status }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if status %}&status={{ status }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status %}&status={{ status }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+            <h4>No Jobs Found</h4>
+            <p class="text-muted">No jobs match your current filters.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Change Status Modal -->
+<div class="modal fade" id="changeStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Job Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="statusForm">
+                    <div class="mb-3">
+                        <label class="form-label">Select New Status</label>
+                        <select class="form-select" id="newStatus" required>
+                            {% for value, label in job_statuses %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmStatusChange">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let jobToUpdate = null;
+
+function changeJobStatus(jobId, currentStatus) {
+    jobToUpdate = jobId;
+    document.getElementById('newStatus').value = currentStatus;
+    
+    const modal = new bootstrap.Modal(document.getElementById('changeStatusModal'));
+    modal.show();
+}
+
+document.getElementById('confirmStatusChange').addEventListener('click', function() {
+    if (jobToUpdate) {
+        const newStatus = document.getElementById('newStatus').value;
+        const formData = new FormData();
+        formData.append('status', newStatus);
+        
+        fetch(`/admin-panel/jobs/${jobToUpdate}/update-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('changeStatusModal'));
+    modal.hide();
+});
+
+function refreshData() {
+    location.reload();
+}
+</script>
+{% endblock %}
