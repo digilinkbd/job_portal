@@ -22,8 +22,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 from pathlib import Path
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -46,9 +49,9 @@ ALLOWED_EXTENSIONS = {
 SECRET_KEY = 'django-insecure-ac+t!o&t-60=)@ejm9#bn5dzhgbk_(+x7%j=(rhzqn$u@dciax'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['http://job-portal-jobportal-8yfdod-5c019b-36-37-67-242.traefik.me']
 
 
 # Application definition
@@ -79,6 +82,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
 ]
 
 ROOT_URLCONF = 'job_portal.urls'
@@ -154,12 +159,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Media files configuration (for file uploads)
 MEDIA_URL = '/media/'
