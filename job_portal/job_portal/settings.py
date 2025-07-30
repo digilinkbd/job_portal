@@ -51,7 +51,7 @@ SECRET_KEY = 'django-insecure-ac+t!o&t-60=)@ejm9#bn5dzhgbk_(+x7%j=(rhzqn$u@dciax
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['http://job-portal-jobportal-8yfdod-5c019b-36-37-67-242.traefik.me']
+ALLOWED_HOSTS = ['job-portal-jobportal-8yfdod-5c019b-36-37-67-242.traefik.me']
 
 
 # Application definition
