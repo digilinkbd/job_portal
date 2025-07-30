@@ -1,0 +1,39 @@
+python manage.py loaddata fixtures/fixtures.json
+
+pip install -r requirements.txt
+
+pip freeze > requirements.txt (To update the requirements.txt file automatically)
+
+
+# First, check the system
+python manage.py check --deploy
+
+# If check passes, create migrations for accounts first (custom user model)
+python manage.py makemigrations accounts
+
+# Then roles (depends on accounts)
+python manage.py makemigrations roles
+
+# Then core
+python manage.py makemigrations core
+
+# Then your other apps
+python manage.py makemigrations products
+python manage.py makemigrations orders
+python manage.py makemigrations blog
+python manage.py makemigrations payments
+python manage.py makemigrations cart
+python manage.py makemigrations admin_panel
+python manage.py makemigrations seo
+python manage.py makemigrations web
+
+# Or make all migrations at once
+python manage.py makemigrations
+
+
+remove db: # Delete the database file
+rm db.sqlite3
+# or if rm doesn't work:
+del db.sqlite3
+python cleanup.py
+http://localhost:8000/admin/products/product/add/
