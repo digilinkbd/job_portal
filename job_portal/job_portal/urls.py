@@ -20,19 +20,26 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 
-def home_redirect(request):
-    """Redirect to job list as home page"""
-    return redirect('jobs:job_list')
+# def home_redirect(request):
+#     """Redirect to job list as home page"""
+#     return redirect('jobs:job_list')
+def home(request):
+    return HttpResponse("Job Portal is working!")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
-    path('jobs/', include('jobs.urls')),
-    path('', include('jobs.urls')),  # For homepage
-    path('admin-panel/', include('admin_panel.urls')),
-    
+    path('', home),
 ]
 
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('accounts/', include('accounts.urls')),
+#     path('jobs/', include('jobs.urls')),
+#     path('', include('jobs.urls')),  # For homepage
+#     path('admin-panel/', include('admin_panel.urls')),
+    
+# ]
+
+# # Serve media files in development
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

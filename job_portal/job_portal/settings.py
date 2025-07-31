@@ -49,7 +49,7 @@ ALLOWED_EXTENSIONS = {
 SECRET_KEY = 'django-insecure-ac+t!o&t-60=)@ejm9#bn5dzhgbk_(+x7%j=(rhzqn$u@dciax'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 #ALLOWED_HOSTS = ['*']  # Change this to your actual domain or IP address in production
 
