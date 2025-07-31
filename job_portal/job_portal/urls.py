@@ -14,22 +14,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
-from django.shortcuts import redirect
+from django.contrib import admin
 
-# def home_redirect(request):
-#     """Redirect to job list as home page"""
-#     return redirect('jobs:job_list')
-def home(request):
-    return HttpResponse("Job Portal is working!")
+def health_check(request):
+    return HttpResponse("✅ Django Job Portal is LIVE! 🚀")
 
 urlpatterns = [
+    path('health/', health_check),
     path('admin/', admin.site.urls),
-    path('', home),
-]
+    path('', include('jobs.urls')),  # your existing URLs
+]  # End of urlpatterns
 
 # urlpatterns = [
 #     path('admin/', admin.site.urls),
