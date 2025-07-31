@@ -53,7 +53,7 @@ DEBUG = True
 
 #ALLOWED_HOSTS = ['*']  # Change this to your actual domain or IP address in production
 
-ALLOWED_HOSTS = ['job-portal-jobportal-8yfdod-37716c-36-37-67-242.traefik.me', '*']
+ALLOWED_HOSTS = ['job-portal-jobportal-8yfdod-642a53-36-37-67-242.traefik.me', '*']
 
 
 # Application definition
