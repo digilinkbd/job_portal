@@ -3,18 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.http import require_POST
-from .models import Job, JobCategory, JobApplication, SavedJob
-from .forms import JobForm, JobSearchForm, JobApplicationForm, ApplicationStatusForm
-from accounts.models import EmployerProfile, JobSeekerProfile
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.core.paginator import Paginator
-from django.db.models import Q, Count
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.urls import reverse
+from django.contrib.auth import get_user_model
+from urllib.parse import urlencode
+
 from .models import Job, JobCategory, JobApplication, SavedJob
 from .forms import JobForm, JobSearchForm, JobApplicationForm, ApplicationStatusForm
 from accounts.models import EmployerProfile, JobSeekerProfile

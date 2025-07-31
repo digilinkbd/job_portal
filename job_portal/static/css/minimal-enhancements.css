@@ -8,7 +8,7 @@
     --warning-color: #f59e0b;
 }
 main {
-    margin-top: 80px; /* Adjust this value */
+    margin-top: 0px; /* Adjust this value */
 }
 /* Enhance existing buttons without breaking them */
 .btn-primary {
@@ -36,7 +36,7 @@ main {
 
 /* Better navbar */
 .navbar {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Smooth scrolling */
@@ -46,7 +46,7 @@ html {
 
 /* Better color variables */
 :root {
-    --primary-color: #3b82f6;
+    --primary-color: #07142b;
     --primary-dark: #2563eb;
     --success-color: #10b981;
     --warning-color: #f59e0b;
